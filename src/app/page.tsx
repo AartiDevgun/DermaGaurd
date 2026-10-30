@@ -100,7 +100,7 @@ function makePetalStyle(index: number): CSSProperties {
     '--petal-delay': delay + 's',
     '--petal-size': size + 'px',
     '--petal-alpha': opacity,
-    '--petal-hue': 198 + ((index * 13) % 39)
+    '--petal-hue': 142 + ((index * 13) % 42)
   } as CSSProperties;
 }
 
@@ -110,7 +110,7 @@ function makeCrystalStyle(index: number): CSSProperties {
   const duration = 19 + ((index * 11) % 25);
   const delay = -((index * 9) % 43);
   const size = 3 + ((index * 5) % 7);
-  const hue = 198 + ((index * 17) % 46);
+  const hue = 34 + ((index * 17) % 36);
   const opacity = 0.23 + ((index * 5) % 18) / 100;
   return {
     '--crystal-x': left + '%',
@@ -129,7 +129,7 @@ function makeSparkStyle(index: number): CSSProperties {
   const size = 2 + ((index * 3) % 4);
   const duration = 3.8 + ((index * 7) % 52) / 10;
   const delay = -((index * 11) % 48) / 10;
-  const sparkleBlues = [196, 204, 212, 220, 228, 236];
+  const sparkleBlues = [145, 153, 161, 35, 42, 49];
   const hue = sparkleBlues[index % sparkleBlues.length];
   return {
     '--spark-x': left + '%',
