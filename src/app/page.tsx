@@ -124,28 +124,29 @@ const logoSrc = '/brand/dermaguard-shield.webp';
 function makePetalStyle(index: number): CSSProperties {
   const left = (index * 43 + (index % 5) * 11) % 100;
   const drift = ((index * 17) % 22) - 11;
-  const duration = 30 + ((index * 13) % 27);
+  const duration = 22 + ((index * 13) % 27);
   const delay = -((index * 7) % 46);
-  const size = 4 + ((index * 5) % 5);
-  const opacity = 0.12 + ((index * 7) % 13) / 100;
+  const size = 4 + ((index * 5) % 7);
+  const opacity = 0.22 + ((index * 7) % 18) / 100;
   return {
     '--petal-x': left + '%',
     '--petal-drift': drift + 'vw',
     '--petal-duration': duration + 's',
     '--petal-delay': delay + 's',
     '--petal-size': size + 'px',
-    '--petal-alpha': opacity
+    '--petal-alpha': opacity,
+    '--petal-hue': 198 + ((index * 13) % 39)
   } as CSSProperties;
 }
 
 function makeCrystalStyle(index: number): CSSProperties {
   const left = (index * 37 + (index % 4) * 19) % 100;
   const drift = ((index * 23) % 27) - 13;
-  const duration = 25 + ((index * 11) % 25);
+  const duration = 19 + ((index * 11) % 25);
   const delay = -((index * 9) % 43);
-  const size = 3 + ((index * 5) % 5);
-  const hue = 190 + ((index * 17) % 48);
-  const opacity = 0.13 + ((index * 5) % 15) / 100;
+  const size = 3 + ((index * 5) % 7);
+  const hue = 198 + ((index * 17) % 46);
+  const opacity = 0.23 + ((index * 5) % 18) / 100;
   return {
     '--crystal-x': left + '%',
     '--crystal-drift': drift + 'vw',
@@ -163,7 +164,8 @@ function makeSparkStyle(index: number): CSSProperties {
   const size = 2 + ((index * 3) % 4);
   const duration = 3.8 + ((index * 7) % 52) / 10;
   const delay = -((index * 11) % 48) / 10;
-  const hue = index % 4 === 0 ? 43 : index % 3 === 0 ? 160 : 205;
+  const sparkleBlues = [196, 204, 212, 220, 228, 236];
+  const hue = sparkleBlues[index % sparkleBlues.length];
   return {
     '--spark-x': left + '%',
     '--spark-y': top + '%',
@@ -549,28 +551,16 @@ export default function HomePage() {
 
   const activeAgentDetails = AGENTS.find(agent => agent.id === activeAgent) ?? AGENTS[0];
 
-  const downloadCsvHeaderTemplate = () => {
-    const blob = new Blob(['image_id,prediction,decision' + String.fromCharCode(10)], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dermaguard-submission-header.csv';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <main className={'dermaguard-app' + (workspaceVisible ? ' dermaguard-app--revealed' : '')}>
       <div className="petal-field" aria-hidden="true">
-        {Array.from({ length: 64 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
+        {Array.from({ length: 180 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
       </div>
       <div className="crystal-field" aria-hidden="true">
-        {Array.from({ length: 96 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+        {Array.from({ length: 240 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
       </div>
       <div className="sparkle-field" aria-hidden="true">
-        {Array.from({ length: 32 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
+        {Array.from({ length: 72 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
       </div>
       <div className="ambient-glow" aria-hidden="true" />
 
@@ -609,28 +599,22 @@ export default function HomePage() {
         <header className="site-header">
           <div className="header-context">
             <span className="header-accent" aria-hidden="true" />
-            <span>TRACK 2 · HEALTHCARE</span>
+            <span>DERMATOLOGY · IMAGE REVIEW</span>
             <span className="header-divider" />
-            <span className="header-muted">SIX-AGENT SCREENING</span>
+            <span className="header-muted">EVIDENCE-LED SCREENING</span>
           </div>
           <button type="button" className="header-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↗</span></button>
         </header>
 
-        <section className="quote-section" aria-label="Prevention quote">
-          <blockquote>“An ounce of prevention is greater than a <span>pound of cure.</span>”</blockquote>
-          <p className="quote-caption">— <strong>Benjamin Franklin</strong></p>
-        </section>
-
         <section className="hero-section" aria-labelledby="entry-title">
           <div className="hero-copy">
-            <p className="eyebrow"><span /> AGENTIC DERMA GUARD · LEVEL 2</p>
+            <p className="eyebrow"><span /> DERMAGUARD · SKIN IMAGE REVIEW</p>
             <h1 id="entry-title">
-              One image.
-              <span>Six agents.</span>
-              <span className="headline-blue">One reasoned decision.</span>
+              Skin, seen clearly.
+              <span className="headline-blue">Evidence, considered.</span>
             </h1>
             <p className="hero-description">
-              DermaGuard brings image quality, classification, lesion features, patient context and safety checks into one traceable screening decision.
+              Six specialist checks bring image quality, visible features, relevant context and safety review into one traceable screening workflow.
             </p>
             <div className="hero-actions">
               <button type="button" className="primary-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↓</span></button>
@@ -649,6 +633,11 @@ export default function HomePage() {
             </div>
             <p className="hero-visual__note">A coordinated review, from image quality to final disposition.</p>
           </div>
+        </section>
+
+        <section className="quote-section" aria-label="Prevention quote">
+          <blockquote>“Look closer. <span>Understand more.</span>”</blockquote>
+          <p className="quote-caption">A more considered approach to skin image review.</p>
         </section>
 
         <section className="review-section" id="image-review" aria-labelledby="review-title">
@@ -974,7 +963,7 @@ export default function HomePage() {
         <section className="agent-system" id="agent-system" aria-labelledby="agent-system-title">
           <div className="agent-system__heading">
             <div>
-              <p className="eyebrow"><span /> TRACK 2 · SIX-AGENT ARCHITECTURE</p>
+              <p className="eyebrow"><span /> THE METHOD · SIX SPECIALIST ROLES</p>
               <h2 id="agent-system-title">Six specialised roles.<br /><em>One traceable outcome.</em></h2>
             </div>
             <p>Agents contribute distinct evidence. The coordinator does not simply repeat six independent labels — it checks how their outputs agree, conflict and affect the final action.</p>
@@ -987,10 +976,10 @@ export default function HomePage() {
                 items={AGENTS.map(agent => ({ value: agent.id, label: agent.code + ' ' + agent.short }))}
                 value={activeAgent}
                 onChange={value => setActiveAgent(value as AgentId)}
-                chipColor="rgba(37, 53, 62, .88)"
-                activeColor="#d8e6cf"
-                textColor="#b7c7c0"
-                activeTextColor="#172721"
+                chipColor="rgba(9, 24, 52, .92)"
+                activeColor="#b7d0ff"
+                textColor="#bdcfee"
+                activeTextColor="#07152f"
                 size="sm"
                 gap={5}
                 radius={9}
@@ -1003,7 +992,7 @@ export default function HomePage() {
             <div className="agent-detail" aria-live="polite">
               <div className="agent-detail__meta">
                 <span>{activeAgentDetails.code} / 06</span>
-                <span>AGENT OUTPUT CONTRACT</span>
+                <span>ROLE & OUTPUTS</span>
               </div>
               <h3>{activeAgentDetails.name}</h3>
               <p>{activeAgentDetails.description}</p>
@@ -1020,8 +1009,8 @@ export default function HomePage() {
           <div className="trace-example">
             <div className="trace-example__heading">
               <div>
-                <p className="eyebrow"><span /> EXAMPLE FROM THE DAY 2 BRIEF</p>
-                <h3>How evidence changes the decision.</h3>
+                <p className="eyebrow"><span /> A SAMPLE DECISION PATH</p>
+                <h3>When evidence changes the decision.</h3>
               </div>
               <span className="trace-example__badge">ILLUSTRATIVE · NOT LIVE OUTPUT</span>
             </div>
@@ -1078,45 +1067,6 @@ export default function HomePage() {
         </section>
 
 
-
-        <section className="submission-section" id="hidden-test" aria-labelledby="submission-title">
-          <div className="submission-section__intro">
-            <p className="eyebrow"><span /> HIDDEN-TEST RUN · 31 OCTOBER</p>
-            <span className="submission-time">10:00 AM · 200 UNLABELLED IMAGES</span>
-            <h2 id="submission-title">Finalise the model.<br /><em>Then run the hidden set.</em></h2>
-            <p>Run the frozen six-agent system on every organiser-supplied image. Do not use hidden images for supervised retraining. Use the official image IDs and retain exactly one result row per image.</p>
-          </div>
-          <div className="submission-section__details">
-            <div className="csv-schema">
-              <div className="csv-schema__heading">
-                <span className="method-label">FINAL CSV · EXACT COLUMN ORDER</span>
-                <button type="button" className="csv-download" onClick={downloadCsvHeaderTemplate}>Download CSV header <span aria-hidden="true">↓</span></button>
-              </div>
-              <div className="csv-columns">
-                <div><code>image_id</code><span>Official hidden-test image ID</span></div>
-                <div><code>prediction</code><span>One of NV, MEL, BKL, BCC, AKIEC, VASC, DF</span></div>
-                <div><code>decision</code><span>AUTO_TRIAGE, REFER or RE_IMAGE</span></div>
-              </div>
-              <p className="csv-schema__note">The download contains the header only. Add all 200 official image IDs and actual model outputs before submission. No true labels belong in the CSV.</p>
-            </div>
-
-            <div className="evaluation-report">
-              <div className="evaluation-report__heading">
-                <span className="method-label">DEMONSTRATION REPORT</span>
-                <span className="evaluation-report__pending">Populate after hidden-test run</span>
-              </div>
-              <div className="evaluation-metrics">
-                <span>Correct / incorrect AUTO-TRIAGE</span>
-                <span>Number of REFER cases</span>
-                <span>Number of RE-IMAGE cases</span>
-                <span>Accuracy · Macro F1</span>
-                <span>Confusion matrix</span>
-                <span>Class-wise errors</span>
-              </div>
-            </div>
-          </div>
-          <p className="submission-section__foot">API endpoint and final deadline are organiser-supplied. Hidden-test images are for final evaluation only; keep the validation set for tuning before the model freeze.</p>
-        </section>
 
         <footer className="site-footer">
           <span className="footer-brand">DermaGuard<span>®</span></span>
