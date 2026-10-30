@@ -88,3 +88,16 @@ All five torchvision pretrained architectures downloaded, constructed with a 7-c
 - Interpretation: all architectures are technically compatible with this T4 and fit at batch size 8. The observed two-step timing is not a valid comparative benchmark (too few iterations, first-use/CUDA/cuDNN warmup effects and random inputs), so do not rank or select models from those timings.
 - The official pretrained weights were obtained from PyTorch's public model-weight distribution; model downloads are cached in the Colab runtime and may need to be re-downloaded after a reset.
 - Next: benchmark with real HAM10000 batches, intended batch size, warm-up iterations and sufficient timed iterations; then compare actual validation metrics during controlled fine-tuning.
+
+
+## Real-image T4 architecture benchmark (reported by user, 2026-10-30)
+Benchmark used an actual HAM10000 batch, batch size 32, FP16 autocast, warm-up and timed forward/backward/inference iterations.
+- EfficientNet-B0: 4.02M parameters; training throughput 410.81 images/s; model-only inference throughput 1,578.36 images/s; peak allocated GPU memory 1.47 GB.
+- EfficientNet-B2: 7.71M; 276.91 training images/s; 1,044.74 inference images/s; 2.13 GB.
+- ResNet50: 23.52M; 262.46 training images/s; 826.72 inference images/s; 1.73 GB.
+- DenseNet121: 6.96M; 217.11 training images/s; 679.89 inference images/s; 2.16 GB.
+- ConvNeXt-Tiny: 27.83M; 217.68 training images/s; 682.15 inference images/s; 2.29 GB.
+- All five completed the benchmark without OOM/errors.
+- Interpret throughput as model-only performance on a resident batch, not end-to-end upload/API/browser latency. The run is useful for initial hardware feasibility, not an accuracy ranking.
+- First-round training shortlist: EfficientNet-B0 (efficiency baseline), EfficientNet-B2 (capacity challenger), ResNet50 (different architecture challenger). DenseNet121 and ConvNeXt-Tiny deferred unless validation results justify reconsideration.
+- No diagnosis model has been trained yet. Choose the final architecture based on validation macro F1, balanced accuracy, per-class sensitivity, calibration, model size and inference performance together.
