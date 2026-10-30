@@ -11,39 +11,79 @@ import FlipCard from '@/components/react-bits/FlipCard';
 import PeekRating from '@/components/react-bits/PeekRating';
 import JellyRadio from '@/components/react-bits/JellyRadio';
 import { Attachment01Icon } from '@hugeicons/core-free-icons';
-
-type QualityResult = {
-  clarityScore: number;
-  reasons: string[];
-  status: 'usable' | 'reimage';
-};
+import ProcessingScreen from '@/components/ProcessingScreen';
 
 type ChatMessage = { role: 'user' | 'assistant'; text: string };
-type ReviewStage = 'quality' | 'classification' | 'triage';
+type AgentId = 'quality' | 'diagnosis' | 'lesion' | 'context' | 'safety' | 'coordinator';
 
-const STAGE_DETAILS: Record<ReviewStage, { number: string; title: string; description: string; note: string; tag: string }> = {
-  quality: {
-    number: '01 / 03',
-    title: 'Image quality, first.',
-    description: 'The first agent checks focus, illumination, glare and obstruction. An image that does not meet the quality threshold should be captured again rather than pushed forward.',
-    note: 'The original image remains unchanged for the classifier.',
-    tag: 'IMAGE QUALITY AGENT'
-  },
-  classification: {
-    number: '02 / 03',
-    title: 'Evidence in the full distribution.',
-    description: 'The diagnosis research agent evaluates the accepted image across all seven HAM10000 lesion classes. The interface is designed to show the complete score distribution, not only one label.',
-    note: 'Model scores are research outputs, not a confirmed medical diagnosis.',
-    tag: 'DIAGNOSIS AGENT'
-  },
-  triage: {
-    number: '03 / 03',
-    title: 'A cautious next step.',
-    description: 'The decision layer combines image usability and classification evidence into one explainable route: AUTO_TRIAGE, REFER or RE_IMAGE.',
-    note: 'This prototype is not a validated clinical pathway.',
-    tag: 'DECISION LAYER'
-  }
+type AgentSpec = {
+  id: AgentId;
+  code: string;
+  short: string;
+  name: string;
+  description: string;
+  outputs: string[];
+  guardrail: string;
 };
+
+const AGENTS: AgentSpec[] = [
+  {
+    id: 'quality',
+    code: 'A1',
+    short: 'Quality',
+    name: 'Image Quality Agent',
+    description: 'Assesses blur, focus, illumination, glare, reflections and obstruction before the rest of the evidence is interpreted.',
+    outputs: ['quality_status: PASS / FAIL', 'quality_score: 0–100', 'reasons[]', 'reliability_flags[]'],
+    guardrail: 'The original image is never enhanced or altered for classifier input.'
+  },
+  {
+    id: 'diagnosis',
+    code: 'A2',
+    short: 'Diagnosis',
+    name: 'Diagnosis Agent',
+    description: 'Classifies the original image into the seven HAM10000 lesion classes and returns the full class-score distribution.',
+    outputs: ['prediction: NV / MEL / BKL / BCC / AKIEC / VASC / DF', 'class_probabilities: all 7 classes', 'top_class_score', 'model_reliability_flags[]'],
+    guardrail: 'Every image receives a predicted class, including images whose final triage action is RE_IMAGE or REFER.'
+  },
+  {
+    id: 'lesion',
+    code: 'A3',
+    short: 'Lesion',
+    name: 'Lesion Analysis Agent',
+    description: 'Examines visible morphology for asymmetry, border irregularity and color variation, then records the visual evidence supporting its assessment.',
+    outputs: ['feature_evidence[]', 'suspicion_score', 'reliability_flags[]', 'observed / not-observed / unclear per cue'],
+    guardrail: 'It must mark a cue unclear when image quality does not support a reliable visual judgement.'
+  },
+  {
+    id: 'context',
+    code: 'A4',
+    short: 'Context',
+    name: 'Reasoning / Context Agent',
+    description: 'Uses supplied age, gender and lesion location only when available and relevant; missing fields remain explicitly missing.',
+    outputs: ['context_evidence[]', 'risk_indicator', 'missing_field_flags[]', 'context_reliability'],
+    guardrail: 'No demographic or location value is inferred, defaulted or fabricated.'
+  },
+  {
+    id: 'safety',
+    code: 'A5',
+    short: 'Safety',
+    name: 'Safety Agent',
+    description: 'Checks image quality, diagnosis, lesion evidence and context for contradictions, weak evidence and unsafe automatic decisions.',
+    outputs: ['safety_flag', 'veto: true / false', 'trigger[]', 'justification'],
+    guardrail: 'A safety veto prevents AUTO_TRIAGE and must carry a traceable reason.'
+  },
+  {
+    id: 'coordinator',
+    code: 'A6',
+    short: 'Coordinator',
+    name: 'Coordinator Agent',
+    description: 'Receives the five upstream outputs and applies the documented decision policy to create one final, auditable response.',
+    outputs: ['prediction: one of 7 class codes', 'decision: AUTO_TRIAGE / REFER / RE_IMAGE', 'traceable_rationale', 'agent_agreement / disagreement'],
+    guardrail: 'The final response always contains both a class prediction and a triage decision.'
+  }
+];
+
+const logoSrc = '/brand/dg-mark.svg';
 
 const logoSrc = '/brand/dg-mark.svg';
 
@@ -52,8 +92,8 @@ function makePetalStyle(index: number): CSSProperties {
   const drift = ((index * 17) % 22) - 11;
   const duration = 30 + ((index * 13) % 27);
   const delay = -((index * 7) % 46);
-  const size = 4 + ((index * 3) % 5);
-  const opacity = 0.11 + ((index * 3) % 10) / 100;
+  const size = 4 + ((index * 5) % 5);
+  const opacity = 0.12 + ((index * 7) % 13) / 100;
   return {
     '--petal-x': left + '%',
     '--petal-drift': drift + 'vw',
@@ -69,9 +109,9 @@ function makeCrystalStyle(index: number): CSSProperties {
   const drift = ((index * 23) % 27) - 13;
   const duration = 25 + ((index * 11) % 25);
   const delay = -((index * 9) % 43);
-  const size = 3 + ((index * 3) % 4);
-  const hue = 190 + ((index * 17) % 38);
-  const opacity = 0.12 + ((index * 3) % 11) / 100;
+  const size = 3 + ((index * 5) % 5);
+  const hue = 190 + ((index * 17) % 48);
+  const opacity = 0.13 + ((index * 5) % 15) / 100;
   return {
     '--crystal-x': left + '%',
     '--crystal-drift': drift + 'vw',
@@ -80,6 +120,23 @@ function makeCrystalStyle(index: number): CSSProperties {
     '--crystal-size': size + 'px',
     '--crystal-hue': hue,
     '--crystal-alpha': opacity
+  } as CSSProperties;
+}
+
+function makeSparkStyle(index: number): CSSProperties {
+  const left = (index * 31 + (index % 7) * 13) % 100;
+  const top = (index * 19 + (index % 5) * 17) % 100;
+  const size = 2 + ((index * 3) % 4);
+  const duration = 3.8 + ((index * 7) % 52) / 10;
+  const delay = -((index * 11) % 48) / 10;
+  const hue = index % 4 === 0 ? 43 : index % 3 === 0 ? 160 : 205;
+  return {
+    '--spark-x': left + '%',
+    '--spark-y': top + '%',
+    '--spark-size': size + 'px',
+    '--spark-duration': duration + 's',
+    '--spark-delay': delay + 's',
+    '--spark-hue': hue
   } as CSSProperties;
 }
 
@@ -182,15 +239,15 @@ export default function HomePage() {
   const [logoDocked, setLogoDocked] = useState(false);
   const [logoSettled, setLogoSettled] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
-  const [activeStage, setActiveStage] = useState<ReviewStage>('quality');
+  const [activeAgent, setActiveAgent] = useState<AgentId>('quality');
   const [previewRating, setPreviewRating] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStage, setProcessingStage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
   const [savedPrompt, setSavedPrompt] = useState('');
-  const [qualityResult] = useState<QualityResult | null>(null);
-  const [qualityState] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachResolver = useRef<((value?: string) => void) | null>(null);
 
@@ -203,6 +260,16 @@ export default function HomePage() {
       window.clearTimeout(revealTimer);
       window.clearTimeout(settleFallbackTimer);
     };
+  }, []);
+
+  useEffect(() => {
+    const handleProcessingEvent = (event: Event) => {
+      const detail = (event as CustomEvent<{ active?: boolean; stage?: string }>).detail;
+      setIsProcessing(detail?.active === true);
+      setProcessingStage(detail?.stage ?? '');
+    };
+    window.addEventListener('dermaguard:processing', handleProcessingEvent);
+    return () => window.removeEventListener('dermaguard:processing', handleProcessingEvent);
   }, []);
 
   useEffect(() => {
@@ -258,19 +325,33 @@ export default function HomePage() {
       setNotice('Choose a dermoscopic image first. Nothing has been uploaded.');
       return;
     }
-    setNotice('Your image is ready in this browser. The screening service is not connected yet, so no analysis has run.');
+    setNotice('Your image is ready in this browser. The six-agent API is not connected yet, so no analysis has run and no result has been fabricated.');
   };
 
-  const isQualityRunning = qualityState === 'running';
-  const activeStageDetails = STAGE_DETAILS[activeStage];
+  const activeAgentDetails = AGENTS.find(agent => agent.id === activeAgent) ?? AGENTS[0];
+
+  const downloadCsvHeaderTemplate = () => {
+    const blob = new Blob(['image_id,prediction,decision' + String.fromCharCode(10)], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dermaguard-submission-header.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <main className={'dermaguard-app' + (workspaceVisible ? ' dermaguard-app--revealed' : '')}>
       <div className="petal-field" aria-hidden="true">
-        {Array.from({ length: 14 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
+        {Array.from({ length: 42 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
       </div>
       <div className="crystal-field" aria-hidden="true">
-        {Array.from({ length: 18 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+        {Array.from({ length: 22 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+      </div>
+      <div className="sparkle-field" aria-hidden="true">
+        {Array.from({ length: 32 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
       </div>
       <div className="ambient-glow" aria-hidden="true" />
 
@@ -314,190 +395,154 @@ export default function HomePage() {
       <div className={'workspace' + (workspaceVisible ? ' workspace--visible' : '')}>
         <header className="site-header">
           <div className="header-context">
-            <span className="header-orbit" aria-hidden="true"><i /></span>
-            <span>DERMATOLOGY RESEARCH</span>
+            <span className="header-accent" aria-hidden="true" />
+            <span>TRACK 2 · HEALTHCARE</span>
             <span className="header-divider" />
-            <span className="header-muted">IMAGE REVIEW WORKSPACE</span>
+            <span className="header-muted">SIX-AGENT SCREENING</span>
           </div>
-          <a className="header-link" href="#approach">Our approach <span aria-hidden="true">↗</span></a>
+          <a className="header-link" href="#agent-system">Six-agent system <span aria-hidden="true">↗</span></a>
         </header>
 
         <section className="hero-section" aria-labelledby="entry-title">
           <div className="hero-copy">
-            <p className="eyebrow"><span /> A MORE CONSIDERED FIRST LOOK</p>
+            <p className="eyebrow"><span /> AGENTIC DERMA GUARD · LEVEL 2</p>
             <h1 id="entry-title">
-              See the image.
-              <span>Understand</span>
-              <span className="headline-blue">the next step.</span>
+              One image.
+              <span>Six agents.</span>
+              <span className="headline-blue">One reasoned decision.</span>
             </h1>
             <p className="hero-description">
-              A thoughtful image-review experience, designed to put clarity first — before a result is ever considered.
+              DermaGuard brings image quality, classification, lesion features, patient context and safety checks into one traceable screening decision.
             </p>
             <div className="hero-actions">
-              <a className="primary-link" href="#image-review">Explore image review <span aria-hidden="true">↓</span></a>
-              <span className="hero-note">RESEARCH PREVIEW <i /> NOT A DIAGNOSIS</span>
+              <a className="primary-link" href="#agent-system">Explore the six agents <span aria-hidden="true">↓</span></a>
+              <span className="hero-note">7 LESION CLASSES <i /> 3 TRIAGE ACTIONS</span>
             </div>
           </div>
 
-          <div className="hero-art" aria-label="Abstract illustration of an image viewed through a focused lens">
-            <div className="art-orbit art-orbit--outer" />
-            <div className="art-orbit art-orbit--middle" />
-            <div className="art-orbit art-orbit--inner" />
-            <div className="art-glow" />
-            <div className="art-lens">
-              <div className="lens-core">
-                <span className="lens-cross lens-cross--horizontal" />
-                <span className="lens-cross lens-cross--vertical" />
-                <span className="lens-point lens-point--one" />
-                <span className="lens-point lens-point--two" />
-                <span className="lens-point lens-point--three" />
-                <div className="lens-ring" />
-              </div>
+          <div className="hero-visual" aria-label="DermaGuard protective botanical shield emblem">
+            <div className="hero-visual__artwork">
+              <img src={logoSrc} alt="DermaGuard emblem showing a face protected by a botanical shield" />
             </div>
-            <div className="art-label art-label--top"><i /> FOCUS FIRST</div>
-            <div className="art-label art-label--bottom">A CLEARER VIEW, BY DESIGN</div>
-            <div className="art-index">01 <span>/ 03</span></div>
+            <div className="hero-visual__caption">
+              <span>IMAGE-LED RESEARCH</span>
+              <i />
+              <span>EXPLAINABLE TRIAGE</span>
+            </div>
+            <p className="hero-visual__note">A coordinated review, from image quality to final disposition.</p>
           </div>
         </section>
 
         <section className="quote-section" aria-label="DermaGuard philosophy">
-          <p className="quote-overline">THE PRINCIPLE</p>
-          <blockquote>“Good decisions begin with <span>good information.</span>”</blockquote>
-          <p className="quote-caption">Clarity is not the conclusion. It is where a more careful process begins.</p>
+          <p className="quote-overline">THE DECISION PRINCIPLE</p>
+          <blockquote>“A predicted class is only one part of <span>a safe next step.</span>”</blockquote>
+          <p className="quote-caption">Every image must leave the system with both a seven-class prediction and a documented triage action.</p>
         </section>
 
-        <section className="method-section" aria-labelledby="method-title">
-          <div className="method-heading">
+        <section className="agent-system" id="agent-system" aria-labelledby="agent-system-title">
+          <div className="agent-system__heading">
             <div>
-              <p className="eyebrow"><span /> THE REVIEW FRAMEWORK</p>
-              <h2 id="method-title">Three layers.<br /><em>One careful view.</em></h2>
+              <p className="eyebrow"><span /> TRACK 2 · SIX-AGENT ARCHITECTURE</p>
+              <h2 id="agent-system-title">Six specialised roles.<br /><em>One traceable outcome.</em></h2>
             </div>
-            <p>Explore how each part of the planned multi-agent workflow contributes to a more explainable image review.</p>
+            <p>Agents contribute distinct evidence. The coordinator does not simply repeat six independent labels — it checks how their outputs agree, conflict and affect the final action.</p>
           </div>
 
-          <div className="method-shell">
-            <div className="method-main">
-              <div className="method-selector">
-                <span className="method-label">EXPLORE A STAGE</span>
-                <JellyRadio
-                  items={[
-                    { value: 'quality', label: 'Image quality' },
-                    { value: 'classification', label: 'Classification' },
-                    { value: 'triage', label: 'Next step' }
-                  ]}
-                  value={activeStage}
-                  onChange={value => setActiveStage(value as ReviewStage)}
-                  chipColor="rgba(28, 48, 76, .8)"
-                  activeColor="#d6e8ff"
-                  textColor="#b9cce5"
-                  activeTextColor="#10213a"
-                  size="sm"
-                  gap={6}
-                  radius={9}
-                  swell={0.12}
-                  barge={4}
-                  ariaLabel="Review stage"
-                />
-              </div>
-
-              <div className="method-copy" aria-live="polite">
-                <span className="method-step-index">{activeStageDetails.number}</span>
-                <h3>{activeStageDetails.title}</h3>
-                <p>{activeStageDetails.description}</p>
-                <p className="method-note">{activeStageDetails.note}</p>
-                <span className="method-tag">{activeStageDetails.tag}</span>
-              </div>
-
-              <div className="method-visual">
-                <div className="method-visual__tunnel">
-                  <LightTunnel
-                    cableColor="#9fc8ff"
-                    pulseColor="#d6e8ff"
-                    tunnelColor="#37669f"
-                    tunnelOpacity={0.09}
-                    speed={0.08}
-                    pulseSpeed={1.2}
-                    cableCount={34}
-                    thickness={0.55}
-                    glow={0.45}
-                    brightness={0.7}
-                    mouseInteraction={false}
-                    clickSurge={false}
-                    intro={false}
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="method-visual__content">
-                  <span className="method-visual__eyebrow">AGENT SEQUENCE · VISUAL PREVIEW</span>
-                  <LatticeLoader
-                    label="Workflow architecture"
-                    status="working"
-                    pattern="orbit"
-                    grid={3}
-                    color="#c4ddff"
-                    glow={false}
-                    showTimer={false}
-                    fontSize={10}
-                    cellSize={8}
-                  />
-                  <span className="method-visual__foot">Illustrative animation only. No image analysis is running.</span>
-                </div>
-              </div>
+          <div className="agent-system__explorer">
+            <div className="agent-system__selector">
+              <span className="method-label">SELECT AN AGENT</span>
+              <JellyRadio
+                items={AGENTS.map(agent => ({ value: agent.id, label: agent.code + ' ' + agent.short }))}
+                value={activeAgent}
+                onChange={value => setActiveAgent(value as AgentId)}
+                chipColor="rgba(37, 53, 62, .88)"
+                activeColor="#d8e6cf"
+                textColor="#b7c7c0"
+                activeTextColor="#172721"
+                size="sm"
+                gap={5}
+                radius={9}
+                swell={0.1}
+                barge={3}
+                ariaLabel="Choose one of the six DermaGuard agents"
+              />
             </div>
 
-            <aside className="method-side">
-              <div className="method-side__card">
-                <span className="method-label">THE MODEL'S LABEL SET</span>
-                <FlipCard
-                  width={300}
-                  height={208}
-                  radius={18}
-                  background="linear-gradient(145deg, rgba(20, 40, 68, .98), rgba(6, 17, 32, .98))"
-                  color="#eef6ff"
-                  front={
-                    <div className="class-flip-front">
-                      <span className="micro-label">HAM10000 RESEARCH CLASSES</span>
-                      <strong>07</strong>
-                      <span>lesion categories</span>
-                      <small>Flip to explore the labels</small>
-                    </div>
-                  }
-                  back={
-                    <div className="class-flip-back">
-                      <span className="micro-label">SEVEN CLASS LABELS</span>
-                      <p><b>NV</b> · Melanocytic nevi</p>
-                      <p><b>MEL</b> · Melanoma</p>
-                      <p><b>BKL</b> · Benign keratosis-like</p>
-                      <p><b>BCC</b> · Basal cell carcinoma</p>
-                      <p><b>AKIEC</b> · Actinic keratoses</p>
-                      <p><b>VASC</b> · Vascular lesions</p>
-                      <p><b>DF</b> · Dermatofibroma</p>
-                    </div>
-                  }
-                  ariaLabel="Flip to inspect the seven HAM10000 research classes"
-                />
+            <div className="agent-detail" aria-live="polite">
+              <div className="agent-detail__meta">
+                <span>{activeAgentDetails.code} / 06</span>
+                <span>AGENT OUTPUT CONTRACT</span>
               </div>
-
-              <div className="method-feedback">
-                <span className="method-label">RATE THE INTERFACE</span>
-                <PeekRating
-                  shape="star"
-                  size={22}
-                  count={5}
-                  activeColor="#b7d6ff"
-                  idleColor="#526987"
-                  tipColor="#142b48"
-                  tipTextColor="#eef6ff"
-                  labels={['Needs work', 'Fair', 'Good', 'Very good', 'Excellent']}
-                  onChange={setPreviewRating}
-                  ariaLabel="Rate the DermaGuard interface"
-                />
-                <span className="method-feedback__caption">
-                  {previewRating ? 'Thanks — your interface rating is noted in this session.' : 'Product feedback only; not a clinical outcome.'}
-                </span>
+              <h3>{activeAgentDetails.name}</h3>
+              <p>{activeAgentDetails.description}</p>
+              <div className="agent-detail__outputs">
+                <span className="method-label">REQUIRED DEMONSTRABLE OUTPUT</span>
+                <ul>
+                  {activeAgentDetails.outputs.map(output => <li key={output}><code>{output}</code></li>)}
+                </ul>
               </div>
-            </aside>
+              <p className="agent-detail__guardrail">{activeAgentDetails.guardrail}</p>
+            </div>
           </div>
+
+          <div className="trace-example">
+            <div className="trace-example__heading">
+              <div>
+                <p className="eyebrow"><span /> EXAMPLE FROM THE DAY 2 BRIEF</p>
+                <h3>How evidence changes the decision.</h3>
+              </div>
+              <span className="trace-example__badge">ILLUSTRATIVE · NOT LIVE OUTPUT</span>
+            </div>
+            <div className="trace-table" role="table" aria-label="Illustrative six-agent decision trace">
+              <div className="trace-row trace-row--header" role="row">
+                <span role="columnheader">AGENT</span>
+                <span role="columnheader">OUTPUT</span>
+                <span role="columnheader">WHAT IT CONTRIBUTES</span>
+              </div>
+              <div className="trace-row" role="row">
+                <strong>A1 · Quality</strong><b className="trace-status trace-status--pass">PASS</b><span>Image is usable.</span>
+              </div>
+              <div className="trace-row" role="row">
+                <strong>A2 · Diagnosis</strong><b className="trace-status">NV · 0.73</b><span>Predicted class is melanocytic nevus.</span>
+              </div>
+              <div className="trace-row" role="row">
+                <strong>A3 + A4 · Evidence</strong><b className="trace-status trace-status--caution">SUSPICIOUS</b><span>Lesion and context evidence raise concern.</span>
+              </div>
+              <div className="trace-row" role="row">
+                <strong>A5 · Safety</strong><b className="trace-status trace-status--flag">SAFETY FLAG</b><span>Conflict detected; automatic triage is vetoed.</span>
+              </div>
+              <div className="trace-row trace-row--decision" role="row">
+                <strong>A6 · Coordinator</strong><b className="trace-status trace-status--refer">REFER</b><span>Final disposition with traceable rationale.</span>
+              </div>
+            </div>
+            <p className="trace-example__foot">The example demonstrates how a low-risk-looking class prediction can still lead to REFER when other agents identify concern.</p>
+          </div>
+        </section>
+
+        <section className="triage-policy" aria-labelledby="triage-policy-title">
+          <div className="triage-policy__heading">
+            <p className="eyebrow"><span /> DOCUMENTED DECISION POLICY</p>
+            <h2 id="triage-policy-title">Every image leaves with<br /><em>two outputs.</em></h2>
+            <p>One predicted lesion class. One triage action. The action is determined from the combined agent evidence, not the diagnosis label alone.</p>
+          </div>
+          <div className="triage-policy__rules">
+            <article className="triage-rule triage-rule--reimage">
+              <span className="triage-rule__number">01</span>
+              <h3>RE-IMAGE</h3>
+              <p>Use when focus, illumination, glare, obstruction or other quality checks make the capture unreliable. Request a new image.</p>
+            </article>
+            <article className="triage-rule triage-rule--refer">
+              <span className="triage-rule__number">02</span>
+              <h3>REFER</h3>
+              <p>Use when suspicion, uncertainty, disagreement or a Safety Agent veto makes automatic disposition unsafe.</p>
+            </article>
+            <article className="triage-rule triage-rule--auto">
+              <span className="triage-rule__number">03</span>
+              <h3>AUTO-TRIAGE</h3>
+              <p>Use only when image quality and evidence are sufficiently reliable, the agent outputs are consistent, and no safety veto is raised.</p>
+            </article>
+          </div>
+          <p className="triage-policy__note">A2 must still return a seven-class prediction for every image, including RE-IMAGE and REFER cases. These are prototype decision rules, not clinically validated thresholds.</p>
         </section>
 
         <section className="review-section" id="image-review" aria-labelledby="review-title">
@@ -619,35 +664,43 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="approach-section" id="approach" aria-labelledby="approach-title">
-          <div className="approach-heading">
-            <p className="eyebrow"><span /> BUILT AROUND CLARITY</p>
-            <h2 id="approach-title">A careful process.<br /><em>One step at a time.</em></h2>
+        <section className="submission-section" id="hidden-test" aria-labelledby="submission-title">
+          <div className="submission-section__intro">
+            <p className="eyebrow"><span /> HIDDEN-TEST RUN · 31 OCTOBER</p>
+            <span className="submission-time">10:00 AM · 200 UNLABELLED IMAGES</span>
+            <h2 id="submission-title">Finalise the model.<br /><em>Then run the hidden set.</em></h2>
+            <p>Run the frozen six-agent system on every organiser-supplied image. Do not use hidden images for supervised retraining. Use the official image IDs and retain exactly one result row per image.</p>
           </div>
-          <div className="approach-grid">
-            <article className="approach-card">
-              <span className="approach-number">01</span>
-              <div className="approach-symbol approach-symbol--focus"><i /><i /><i /></div>
-              <h3>Image quality</h3>
-              <p>First, assess focus, lighting, glare and obstruction. An unclear image should not be treated as reliable input.</p>
-              <span className="approach-tag">QUALITY REVIEW AGENT</span>
-            </article>
-            <article className="approach-card">
-              <span className="approach-number">02</span>
-              <div className="approach-symbol approach-symbol--signal"><i /><i /><i /><i /></div>
-              <h3>Model research</h3>
-              <p>Then, examine the image against the research model’s seven lesion categories, with the full score distribution visible.</p>
-              <span className="approach-tag">CLASSIFICATION RESEARCH</span>
-            </article>
-            <article className="approach-card">
-              <span className="approach-number">03</span>
-              <div className="approach-symbol approach-symbol--path"><i /><i /><i /></div>
-              <h3>Next-step guidance</h3>
-              <p>Present a cautious outcome: review the image again, seek professional review, or inspect the research output.</p>
-              <span className="approach-tag">DECISION SUPPORT</span>
-            </article>
+          <div className="submission-section__details">
+            <div className="csv-schema">
+              <div className="csv-schema__heading">
+                <span className="method-label">FINAL CSV · EXACT COLUMN ORDER</span>
+                <button type="button" className="csv-download" onClick={downloadCsvHeaderTemplate}>Download CSV header <span aria-hidden="true">↓</span></button>
+              </div>
+              <div className="csv-columns">
+                <div><code>image_id</code><span>Official hidden-test image ID</span></div>
+                <div><code>prediction</code><span>One of NV, MEL, BKL, BCC, AKIEC, VASC, DF</span></div>
+                <div><code>decision</code><span>AUTO_TRIAGE, REFER or RE_IMAGE</span></div>
+              </div>
+              <p className="csv-schema__note">The download contains the header only. Add all 200 official image IDs and actual model outputs before submission. No true labels belong in the CSV.</p>
+            </div>
+
+            <div className="evaluation-report">
+              <div className="evaluation-report__heading">
+                <span className="method-label">DEMONSTRATION REPORT</span>
+                <span className="evaluation-report__pending">Populate after hidden-test run</span>
+              </div>
+              <div className="evaluation-metrics">
+                <span>Correct / incorrect AUTO-TRIAGE</span>
+                <span>Number of REFER cases</span>
+                <span>Number of RE-IMAGE cases</span>
+                <span>Accuracy · Macro F1</span>
+                <span>Confusion matrix</span>
+                <span>Class-wise errors</span>
+              </div>
+            </div>
           </div>
-          <p className="approach-note">Planned research workflow · Not a validated clinical pathway</p>
+          <p className="submission-section__foot">API endpoint and final deadline are organiser-supplied. Hidden-test images are for final evaluation only; keep the validation set for tuning before the model freeze.</p>
         </section>
 
         <footer className="site-footer">
@@ -656,79 +709,9 @@ export default function HomePage() {
           <span className="footer-disclaimer">NOT FOR CLINICAL DECISION-MAKING</span>
         </footer>
 
-        {isQualityRunning ? (
-          <section className="quality-processing" aria-label="Image quality assessment in progress">
-            <div className="quality-processing__tunnel">
-              <LightTunnel
-                cableColor="#719cff"
-                pulseColor="#bdd5ff"
-                tunnelColor="#315ea8"
-                tunnelOpacity={0.12}
-                speed={0.16}
-                pulseSpeed={1.6}
-                cableCount={64}
-                glow={1.1}
-                brightness={1.05}
-                intro
-                mouseInteraction
-                clickSurge={false}
-              />
-            </div>
-            <div className="quality-processing__status">
-              <LatticeLoader
-                label="Assessing image quality"
-                status="working"
-                pattern="orbit"
-                grid={3}
-                color="#b7d3ff"
-                glow
-                glowColor="#8cafff"
-                showTimer
-              />
-              <span className="processing-caption">Focus · illumination · glare · obstruction</span>
-            </div>
-          </section>
-        ) : null}
 
-        {qualityResult ? (
-          <section className="quality-result">
-            <div className="quality-result__card">
-              <FlipCard
-                width={320}
-                height={230}
-                radius={22}
-                background="rgba(9, 19, 37, 0.96)"
-                color="#f4f8ff"
-                front={
-                  <div className="clarity-front">
-                    <span className="micro-label">IMAGE CLARITY</span>
-                    <strong>{qualityResult.clarityScore}<small>%</small></strong>
-                    <span>Tap to inspect the findings</span>
-                  </div>
-                }
-                back={
-                  <div className="clarity-back">
-                    <span className="micro-label">QUALITY FINDINGS</span>
-                    {qualityResult.reasons.map(reason => <p key={reason}>{reason}</p>)}
-                  </div>
-                }
-                ariaLabel="Image clarity score and quality findings"
-              />
-              <div className="quality-result__feedback">
-                <span className="micro-label">WAS THIS REVIEW CLEAR?</span>
-                <PeekRating
-                  shape="star"
-                  size={24}
-                  activeColor="#a9caff"
-                  idleColor="#43546f"
-                  tipColor="#152943"
-                  tipTextColor="#f3f8ff"
-                />
-              </div>
-            </div>
-          </section>
-        ) : null}
       </div>
+      {isProcessing ? <ProcessingScreen stage={processingStage} /> : null}
       {workspaceVisible ? <MoonAssistant /> : null}
     </main>
   );
