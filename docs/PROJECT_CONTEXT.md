@@ -83,3 +83,15 @@ Preparation only. No model has been trained, no inference API has been implement
 
 ## Working rule
 After each meaningful milestone, update this file and the README with what changed, how to run/test it, and what remains. Never mark a feature complete unless it has been implemented and tested.
+
+
+## Initial Vercel production deployment (2026-10-30)
+- Vercel project: `dermaguard` (`prj_lXp4Rl34iZlVDUUhlVMCjMw1kAUZ`) under the user's Hobby team.
+- Git source: `AartiDevgun/DermaGaurd`, branch `main`.
+- Deployed commit: `0ebb825a186fe1a90477f20db3d38ecb045de980` (`feat(frontend): add initial Next.js landing scaffold`).
+- Production deployment: `dpl_EnWzKYpCJsoU6JX7pQzsRkNM3TPT`; Vercel reports state `READY`.
+- Public production domain: `https://dermaguard.vercel.app`.
+- Protection: Vercel SSO is configured for Preview deployments only; password protection and Trusted IP restrictions are disabled. This keeps production accessible without a Vercel login while previews remain protected.
+- Build: Next.js 16.4.3 optimized build, TypeScript validation and static prerender completed. npm audit reported 0 vulnerabilities.
+- Build warnings recorded: Vercel/npm emitted a non-blocking unknown `cache-dir` environment-config warning, an npm install-scripts allowlist warning for `unrs-resolver`, and the broad Node engine range warning. The build nevertheless completed successfully.
+- Scope: this is the informational landing screen only. Image selection, Agent 1, the diagnosis model/API and result rendering are not connected yet.
