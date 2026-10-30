@@ -10,9 +10,9 @@ export default function ProcessingScreen({ stage }: { stage?: string }) {
     <section className="processing-screen" role="status" aria-live="polite" aria-label="DermaGuard analysis in progress">
       <div className="processing-screen__tunnel" aria-hidden="true">
         <LightTunnel
-          cableColor="#7fc8ad"
-          pulseColor="#f0d89a"
-          tunnelColor="#235b56"
+          cableColor="#6ea8ff"
+          pulseColor="#d8e7ff"
+          tunnelColor="#234a9a"
           tunnelOpacity={0.12}
           speed={0.11}
           pulseSpeed={1.35}
@@ -33,9 +33,9 @@ export default function ProcessingScreen({ stage }: { stage?: string }) {
           status="working"
           pattern="orbit"
           grid={3}
-          color="#d8e8ce"
+          color="#c7dcff"
           glow
-          glowColor="#75b99b"
+          glowColor="#79aaff"
           showTimer
           fontSize={11}
           cellSize={10}
