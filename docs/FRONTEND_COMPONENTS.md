@@ -72,3 +72,13 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Timing integration: set status from the actual Agent 1 request lifecycle. When `elapsed` is omitted, the component measures elapsed time from its own `performance.now()` clock while status is `working`; alternatively, pass elapsed seconds from the parent request clock. Stop the working state on the actual response/error, not an arbitrary timeout.
 - Intended role: visual processing indicator while the image-quality agent is genuinely running. Coordinate with LightTunnel so background shards are disabled during the tunnel state.
 - Integration is deferred until the app scaffold is ready.
+
+
+## LightTunnel source received (2026-10-30)
+- User supplied LightTunnel.tsx and LightTunnel.css.
+- Implements a WebGL2 animated tunnel with cable/pulse/tunnel color controls, inward/outward flow, pointer interaction, click surge, intro reveal and reduced-motion handling.
+- No third-party runtime package is imported by this component.
+- Intended role: visual environment while the Image Quality Agent is actively processing. The global falling-shard layer must be disabled for the entire LightTunnel-active state and restored after that state ends.
+- The component uses a WebGL2 context; provide a graceful non-WebGL fallback in the application shell when implementing the page, without altering the supplied component source.
+- Timing/state must reflect the real quality-agent request lifecycle. Its 1.8-second intro is visual animation, not a simulated processing duration.
+- Integration is deferred until the app scaffold is ready.
