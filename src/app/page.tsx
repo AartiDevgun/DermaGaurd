@@ -26,8 +26,8 @@ function makePetalStyle(index: number): CSSProperties {
   const drift = ((index * 17) % 22) - 11;
   const duration = 30 + ((index * 13) % 27);
   const delay = -((index * 7) % 46);
-  const size = 11 + ((index * 11) % 17);
-  const opacity = 0.15 + ((index * 5) % 21) / 100;
+  const size = 6 + ((index * 5) % 6);
+  const opacity = 0.13 + ((index * 3) % 12) / 100;
   return {
     '--petal-x': left + '%',
     '--petal-drift': drift + 'vw',
@@ -43,9 +43,9 @@ function makeCrystalStyle(index: number): CSSProperties {
   const drift = ((index * 23) % 27) - 13;
   const duration = 25 + ((index * 11) % 25);
   const delay = -((index * 9) % 43);
-  const size = 7 + ((index * 7) % 12);
+  const size = 4 + ((index * 5) % 6);
   const hue = 190 + ((index * 17) % 38);
-  const opacity = 0.22 + ((index * 3) % 25) / 100;
+  const opacity = 0.15 + ((index * 4) % 14) / 100;
   return {
     '--crystal-x': left + '%',
     '--crystal-drift': drift + 'vw',
@@ -154,6 +154,7 @@ function MoonAssistant() {
 
 export default function HomePage() {
   const [logoDocked, setLogoDocked] = useState(false);
+  const [logoSettled, setLogoSettled] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -168,9 +169,11 @@ export default function HomePage() {
   useEffect(() => {
     const dockTimer = window.setTimeout(() => setLogoDocked(true), 1850);
     const revealTimer = window.setTimeout(() => setWorkspaceVisible(true), 2380);
+    const settleFallbackTimer = window.setTimeout(() => setLogoSettled(true), 3300);
     return () => {
       window.clearTimeout(dockTimer);
       window.clearTimeout(revealTimer);
+      window.clearTimeout(settleFallbackTimer);
     };
   }, []);
 
@@ -243,26 +246,35 @@ export default function HomePage() {
       <div className="ambient-glow" aria-hidden="true" />
 
       <div className={'brand-lockup' + (logoDocked ? ' brand-lockup--docked' : ' brand-lockup--intro')}>
-        <div className="brand-emblem">
-          <ElectricLogo
-            src={logoSrc}
-            color="#b9d6ff"
-            glowColor="#668cff"
-            scale={0.82}
-            intensity={logoDocked ? 0.72 : 1.25}
-            glow={logoDocked ? 0 : 1.2}
-            thickness={1.65}
-            strands={5}
-            bend={0.55}
-            crackle={1.2}
-            arcs={logoDocked ? 0 : 2}
-            flicker={logoDocked ? 0 : 0.48}
-            speed={1.8}
-            interactive={!logoDocked}
-            cursorIntensity={0.55}
-            cursorRadius={90}
-            className="electric-logo-instance"
-          />
+        <div
+          className="brand-emblem"
+          onTransitionEnd={event => {
+            if (event.propertyName === 'width' && logoDocked) setLogoSettled(true);
+          }}
+        >
+          {logoSettled ? (
+            <img className="brand-static-mark" src={logoSrc} alt="" />
+          ) : (
+            <ElectricLogo
+              src={logoSrc}
+              color="#b9d6ff"
+              glowColor="#668cff"
+              scale={0.82}
+              intensity={1.25}
+              glow={1.2}
+              thickness={1.65}
+              strands={5}
+              bend={0.55}
+              crackle={1.2}
+              arcs={2}
+              flicker={0.48}
+              speed={1.8}
+              interactive
+              cursorIntensity={0.55}
+              cursorRadius={90}
+              className="electric-logo-instance"
+            />
+          )}
         </div>
         <div className="brand-type">
           <span className="brand-wordmark">DermaGuard</span>
