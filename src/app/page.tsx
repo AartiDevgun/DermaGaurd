@@ -396,6 +396,18 @@ export default function HomePage() {
     finishAttachment();
   };
 
+  useEffect(() => {
+    const input = fileInputRef.current;
+    if (!input) return undefined;
+    const handleNativeCancel = () => {
+      setImageStatus(selectedFile ? 'done' : 'idle');
+      attachResolver.current?.();
+      attachResolver.current = null;
+    };
+    input.addEventListener('cancel', handleNativeCancel);
+    return () => input.removeEventListener('cancel', handleNativeCancel);
+  }, [selectedFile]);
+
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
@@ -655,7 +667,6 @@ export default function HomePage() {
                 type="file"
                 accept={IMAGE_FORMAT_ACCEPT[imageFormat]}
                 onChange={handleImageChange}
-                onCancel={handleImageCancel}
                 tabIndex={-1}
                 aria-hidden="true"
                 aria-label="Choose a dermoscopic image"
