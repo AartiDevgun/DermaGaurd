@@ -410,17 +410,23 @@ export default function HomePage() {
     attachResolver.current = null;
   };
 
+  const openImagePicker = () => {
+    const input = fileInputRef.current;
+    if (!input) {
+      setNotice('The image picker could not be opened. Refresh the page and try again.');
+      return false;
+    }
+    input.value = '';
+    setImageStatus('running');
+    setNotice('Choose a supported image file to add it to the review.');
+    input.click();
+    return true;
+  };
+
   const attachImage = () =>
     new Promise<string | void>((resolve) => {
       attachResolver.current = resolve;
-      if (!fileInputRef.current) {
-        finishAttachment();
-        return;
-      }
-      fileInputRef.current.value = '';
-      setImageStatus('running');
-      setNotice('Choose a supported image file to add it to the review.');
-      fileInputRef.current.click();
+      if (!openImagePicker()) finishAttachment();
     });
 
   const handleImageCancel = () => {
@@ -558,10 +564,10 @@ export default function HomePage() {
   return (
     <main className={'dermaguard-app' + (workspaceVisible ? ' dermaguard-app--revealed' : '')}>
       <div className="petal-field" aria-hidden="true">
-        {Array.from({ length: 42 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
+        {Array.from({ length: 64 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
       </div>
       <div className="crystal-field" aria-hidden="true">
-        {Array.from({ length: 22 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+        {Array.from({ length: 96 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
       </div>
       <div className="sparkle-field" aria-hidden="true">
         {Array.from({ length: 32 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
@@ -607,11 +613,10 @@ export default function HomePage() {
             <span className="header-divider" />
             <span className="header-muted">SIX-AGENT SCREENING</span>
           </div>
-          <a className="header-link" href="#image-review">Upload an image <span aria-hidden="true">↗</span></a>
+          <button type="button" className="header-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↗</span></button>
         </header>
 
         <section className="quote-section" aria-label="Prevention quote">
-          <p className="quote-overline">A PRINCIPLE WORTH REMEMBERING</p>
           <blockquote>“An ounce of prevention is greater than a <span>pound of cure.</span>”</blockquote>
           <p className="quote-caption">— <strong>Benjamin Franklin</strong></p>
         </section>
@@ -628,7 +633,7 @@ export default function HomePage() {
               DermaGuard brings image quality, classification, lesion features, patient context and safety checks into one traceable screening decision.
             </p>
             <div className="hero-actions">
-              <a className="primary-link" href="#image-review">Upload an image <span aria-hidden="true">↓</span></a>
+              <button type="button" className="primary-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↓</span></button>
               <span className="hero-note">7 LESION CLASSES <i /> 3 TRIAGE ACTIONS</span>
             </div>
           </div>
@@ -663,7 +668,6 @@ export default function HomePage() {
                 <span className="workspace-mark">DG</span>
                 <div><strong>Image workspace</strong><span>Prepare an image for review</span></div>
               </div>
-              <span className="local-badge"><i /> LOCAL IMAGE PREVIEW</span>
             </div>
 
             {selectedFile && previewUrl ? (
@@ -752,6 +756,9 @@ export default function HomePage() {
                   textColor="#e1f4ff"
                   ariaLabel="Filter image file type"
                 />
+                <button type="button" className="choose-image-button" onClick={openImagePicker}>
+                  Choose image <span aria-hidden="true">↗</span>
+                </button>
               </div>
               <PromptBar
                 placeholder="Add a note or attach your dermoscopic image..."
