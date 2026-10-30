@@ -247,10 +247,6 @@ export default function HomePage() {
               type="file"
               accept="image/png,image/jpeg,image/webp,image/avif"
               onChange={handleImageChange}
-              onCancel={() => {
-                attachResolver.current?.();
-                attachResolver.current = null;
-              }}
               tabIndex={-1}
               aria-hidden="true"
             />
