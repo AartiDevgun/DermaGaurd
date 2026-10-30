@@ -91,3 +91,11 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Intended role: show the Image Quality Agent's clarity score on the front and its evidence/reasons on the reverse. Populate both sides from the real quality-agent response; do not hard-code a score or fabricate reasons.
 - FlipCard's visual width/height and flip behavior will be configured in the page layout; the component source should otherwise be preserved.
 - Integration is deferred until the app scaffold is ready.
+
+
+## PeekRating source received (2026-10-30)
+- User supplied PeekRating.tsx and PeekRating.css.
+- Supports controlled/uncontrolled ratings, star/heart/bolt shapes, hover preview labels, keyboard interaction, read-only and disabled modes, and reduced-motion behavior.
+- Runtime dependencies: @hugeicons/react and @hugeicons/core-free-icons.
+- Intended role: collect optional user experience feedback after displaying the analysis result. This is feedback about the app experience, not a verified diagnostic label and must not be used as ground-truth training data.
+- Integration is deferred until the app scaffold is ready.
