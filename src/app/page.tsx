@@ -5,8 +5,6 @@ import ElectricLogo from '@/components/react-bits/ElectricLogo';
 import PromptBar from '@/components/react-bits/PromptBar';
 import GlideSelect from '@/components/react-bits/GlideSelect';
 import CallChip from '@/components/react-bits/CallChip';
-import LatticeLoader from '@/components/react-bits/LatticeLoader';
-import LightTunnel from '@/components/react-bits/LightTunnel';
 import FlipCard from '@/components/react-bits/FlipCard';
 import PeekRating from '@/components/react-bits/PeekRating';
 import JellyRadio from '@/components/react-bits/JellyRadio';
@@ -412,34 +410,31 @@ export default function HomePage() {
 
         <section className="hero-section" aria-labelledby="entry-title">
           <div className="hero-copy">
-            <p className="eyebrow"><span /> DERMA GUARD · IMAGE REVIEW</p>
+            <p className="eyebrow"><span /> AGENTIC DERMA GUARD · LEVEL 2</p>
             <h1 id="entry-title">
-              Start with the
-              <span>image.</span>
-              <span className="headline-blue">See the evidence.</span>
+              One image.
+              <span>Six agents.</span>
+              <span className="headline-blue">One reasoned decision.</span>
             </h1>
             <p className="hero-description">
-              Upload a dermoscopic image to begin a structured review. The intended result brings together image quality, a seven-class prediction, lesion and context evidence, safety checks and one traceable triage action.
+              DermaGuard brings image quality, classification, lesion features, patient context and safety checks into one traceable screening decision.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="#image-review">Upload an image <span aria-hidden="true">↓</span></a>
-              <span className="hero-note">7 LESION CLASSES <i /> 6 AGENTS <i /> 3 ACTIONS</span>
+              <span className="hero-note">7 LESION CLASSES <i /> 3 TRIAGE ACTIONS</span>
             </div>
           </div>
 
-          <div className="hero-proof" aria-label="What the review is designed to provide">
-            <div className="hero-proof__row">
-              <span>01</span>
-              <div><strong>Image quality</strong><small>Clarity, focus and illumination</small></div>
+          <div className="hero-visual" aria-label="DermaGuard protective botanical shield emblem">
+            <div className="hero-visual__artwork">
+              <img src={logoSrc} alt="DermaGuard emblem showing a face protected by a botanical shield" />
             </div>
-            <div className="hero-proof__row">
-              <span>02</span>
-              <div><strong>Model prediction</strong><small>Full seven-class distribution</small></div>
+            <div className="hero-visual__caption">
+              <span>IMAGE-LED RESEARCH</span>
+              <i />
+              <span>EXPLAINABLE TRIAGE</span>
             </div>
-            <div className="hero-proof__row">
-              <span>03</span>
-              <div><strong>Reasoned triage</strong><small>Evidence, safety and next step</small></div>
-            </div>
+            <p className="hero-visual__note">A coordinated review, from image quality to final disposition.</p>
           </div>
         </section>
 
@@ -450,7 +445,7 @@ export default function HomePage() {
               <h2 id="review-title">Upload your image.<br /><em>Review the evidence.</em></h2>
             </div>
             <p className="section-intro">
-              Choose a clear, well-lit dermoscopic image. Once the six-agent API is connected, this workspace will return a lesion-class prediction, its supporting evidence and a separate triage action.
+              Upload a dermoscopic image to begin. Once the six-agent backend is connected, this workspace will display the class prediction, supporting evidence and triage decision.
             </p>
           </div>
 
@@ -535,14 +530,14 @@ export default function HomePage() {
               />
               <div className="composer-meta">
                 <span>PNG · JPG · WEBP · UP TO 25 MB</span>
-                <span>File stays in this browser until API integration.</span>
+                <span>Image stays in this browser until API integration.</span>
               </div>
             </div>
 
             <div className="context-fields">
               <div className="context-fields__heading">
-                <span className="method-label">OPTIONAL PATIENT CONTEXT</span>
-                <span>Leave unknown fields blank — nothing is inferred.</span>
+                <span className="micro-label">OPTIONAL PATIENT CONTEXT</span>
+                <span>Leave unknown fields blank.</span>
               </div>
               <div className="context-fields__grid">
                 <label>
@@ -566,32 +561,16 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="result-contract">
-              <div className="result-contract__heading">
-                <span className="method-label">YOUR REVIEW RESULT</span>
-                <span className="result-contract__status"><i /> WAITING FOR MODEL API</span>
+            <div className="result-preview">
+              <div className="result-preview__heading">
+                <span className="micro-label">EXPECTED REVIEW OUTPUT</span>
+                <span>AWAITING SIX-AGENT API</span>
               </div>
-              <div className="result-contract__primary">
-                <div>
-                  <span>PREDICTED CLASS</span>
-                  <strong>—</strong>
-                  <small>One of seven lesion classes</small>
-                </div>
-                <div>
-                  <span>TRIAGE DECISION</span>
-                  <strong>—</strong>
-                  <small>AUTO-TRIAGE · REFER · RE-IMAGE</small>
-                </div>
+              <div className="result-preview__columns">
+                <div><span>PREDICTED CLASS</span><strong>—</strong><small>Seven-class distribution</small></div>
+                <div><span>TRIAGE DECISION</span><strong>—</strong><small>AUTO-TRIAGE · REFER · RE-IMAGE</small></div>
               </div>
-              <div className="result-contract__evidence">
-                <span>QUALITY SCORE</span>
-                <span>LESION FEATURE EVIDENCE</span>
-                <span>CONTEXT FLAGS</span>
-                <span>SAFETY VETO</span>
-                <span>COORDINATOR RATIONALE</span>
-              </div>
-              <p>These fields will populate from the six-agent response. No prediction or confidence score is fabricated in this preview.</p>
-              <button type="button" disabled title="Available after the six-agent API is connected">Run six-agent review <span>Backend integration pending</span></button>
+              <p>Quality findings, lesion evidence, context flags, safety checks and coordinator rationale will appear here after integration.</p>
             </div>
 
             <div className="local-file-state">
@@ -724,6 +703,8 @@ export default function HomePage() {
           </div>
           <p className="triage-policy__note">A2 must still return a seven-class prediction for every image, including RE-IMAGE and REFER cases. These are prototype decision rules, not clinically validated thresholds.</p>
         </section>
+
+
 
         <section className="submission-section" id="hidden-test" aria-labelledby="submission-title">
           <div className="submission-section__intro">
