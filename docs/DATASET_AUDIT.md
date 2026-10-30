@@ -164,3 +164,18 @@
 - Evaluation archive was not extracted.
 - Important: `/content/dermaguard_data` is ephemeral Colab local storage and will be lost on runtime reset. Original ZIP and frozen split remain in Google Drive.
 - Next: verify actual image IDs, metadata IDs and frozen split CSV alignment before creating the data loader.
+
+
+## Extracted dataset and frozen split alignment verified (reported by user, 2026-10-30)
+- Extracted image files: 7,762
+- Training metadata rows: 7,762
+- Frozen split CSV rows: 7,762
+- Image IDs missing metadata: 0
+- Metadata IDs missing image: 0
+- Image IDs missing from split: 0
+- Extra split IDs: 0
+- Merged metadata labels and lesion IDs match the split CSV exactly.
+- Frozen split: train=6,208; validation=1,554.
+- Lesion overlap between train and validation: 0.
+- All assertions in the verification script passed.
+- Dataset audit and split alignment are now complete. Next stage: construct and smoke-test deterministic image preprocessing, augmentation, Dataset and DataLoader; do not train until the batch/GPU smoke test passes.
