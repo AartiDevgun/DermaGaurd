@@ -85,3 +85,18 @@
 - The metadata schema and label contents are not yet inspected.
 - Preserve this evaluation archive for the final independent evaluation only. Do not use its labels for training, architecture selection, hyperparameter tuning, threshold selection or calibration.
 - Next: inspect only the eval CSV schema, row count, missing values and label distribution; record the result, then keep the evaluation labels sealed until the model and decision policy are frozen.
+
+
+## Evaluation metadata and independence verified (reported by user, 2026-10-30)
+- Evaluation metadata rows: 1,942
+- Columns: `image_id, lesion_id, dx, age, sex, localization`
+- Missing values: age=12; all other columns=0
+- Evaluation class counts: nv=1,302; mel=214; bkl=212; bcc=101; akiec=63; vasc=27; df=23
+- Unique evaluation image IDs: 1,942
+- Duplicate evaluation image IDs: 0
+- Unique evaluation lesions: 1,456
+- Training/evaluation lesion overlap: 0
+- Result: image IDs are unique and no lesion group crosses from training into official evaluation.
+- Age missingness is irrelevant to the planned image-only classifier; do not use demographics in the initial model.
+- Evaluation set should remain untouched for all model training, architecture selection, hyperparameter tuning and confidence calibration. Use it once for final evaluation after model and decision rules are frozen.
+- Evaluation metrics for rare classes will have high sampling uncertainty (only 23 df and 27 vasc images); report per-class support and interpret results carefully.
