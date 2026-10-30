@@ -2937,3 +2937,132 @@ html, body {
   .context-fields__grid input,
   .context-fields__grid select { font-size: 14px; }
 }
+
+
+/* Restore the React Bits image composer and make its controls easy to spot. */
+.upload-format-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 13px;
+  padding: 13px 16px;
+  border: 1px solid rgba(57, 191, 244, .24);
+  border-radius: 14px;
+  background: linear-gradient(115deg, rgba(7, 38, 59, .76), rgba(5, 20, 34, .66));
+}
+.upload-format-row > div { display: grid; gap: 4px; min-width: 0; }
+.upload-format-row__label {
+  color: #6ed9e8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+.upload-format-row p {
+  margin: 0;
+  color: #b8d6e9;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.upload-format-row .glide-select__trigger {
+  height: 39px;
+  padding: 0 12px;
+  border: 1px solid rgba(57, 201, 223, .42);
+  border-radius: 10px;
+  color: #e1f4ff;
+  background: linear-gradient(110deg, rgba(7, 82, 125, .72), rgba(15, 67, 94, .84));
+  font-size: 13px;
+}
+.upload-format-row .glide-select__chevron { color: #70d9e8; }
+.upload-format-row .glide-select__menu {
+  border: 1px solid rgba(57, 201, 223, .34);
+  background: #071d31;
+}
+.upload-format-row .glide-select__option { color: #e1f4ff; }
+.upload-format-row .glide-select__option[aria-selected='true'] {
+  background: rgba(57, 201, 223, .14);
+}
+.upload-format-row .glide-select__tag { color: #92c4de; }
+
+.composer-wrap .prompt-bar {
+  width: 100%;
+  border: 1px solid rgba(57, 191, 244, .42);
+  border-radius: 19px;
+  background: linear-gradient(130deg, rgba(5, 32, 52, .98), rgba(5, 20, 35, .98));
+  box-shadow:
+    inset 0 1px rgba(216, 245, 255, .08),
+    0 16px 46px rgba(0, 0, 0, .28),
+    0 0 34px rgba(35, 166, 206, .08);
+}
+.composer-wrap .prompt-bar__field {
+  min-height: 142px;
+  padding: 18px 18px 14px;
+  background:
+    radial-gradient(100% 120% at 0% 100%, rgba(57, 191, 244, .15), transparent 70%),
+    transparent;
+}
+.composer-wrap .prompt-bar__input {
+  min-height: 48px;
+  color: #e1f4ff;
+  font-size: 16px;
+  line-height: 1.65;
+}
+.composer-wrap .prompt-bar__input::placeholder { color: #9abbd0; opacity: 1; }
+.composer-wrap .prompt-bar__tool,
+.composer-wrap .prompt-bar__pick { color: #c3e4f4; }
+.composer-wrap .prompt-bar__tool:hover,
+.composer-wrap .prompt-bar__pick:hover { background: rgba(57, 201, 223, .13); }
+.composer-wrap .prompt-bar__chip {
+  border: 1px solid rgba(57, 201, 223, .28);
+  border-radius: 8px;
+  color: #e1f4ff;
+  background: rgba(7, 82, 125, .38);
+  font-size: 13px;
+}
+.composer-wrap .prompt-bar__send[data-armed] {
+  color: #031521;
+  background: linear-gradient(135deg, #39c9df, #b7e3ff);
+  box-shadow: 0 0 22px rgba(57, 201, 223, .28);
+}
+.composer-wrap .prompt-bar__menu {
+  border: 1px solid rgba(57, 191, 244, .34);
+  background: rgba(5, 26, 43, .98);
+}
+.composer-meta {
+  color: #b0cce0;
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+.local-file-state--visible {
+  display: flex !important;
+  align-items: center;
+  min-height: 46px;
+  margin: 13px 0 2px 3px;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.local-file-state--visible .call-chip {
+  min-height: 37px;
+  border: 1px solid rgba(57, 201, 223, .34);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, .2), 0 0 18px rgba(57, 191, 244, .07);
+  --cc-font: 13px;
+}
+.local-file-state--visible .call-chip__arg { color: #c1e0ee; opacity: .95; }
+.workflow-notice {
+  color: #c4e5f5;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 680px) {
+  .upload-format-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 11px;
+    padding: 13px;
+  }
+  .upload-format-row .glide-select__trigger { width: 100%; justify-content: space-between; }
+  .composer-wrap .prompt-bar__field { min-height: 134px; padding: 15px; }
+  .composer-wrap .prompt-bar__input { font-size: 16px; }
+  .composer-meta { font-size: 11px; }
+}
