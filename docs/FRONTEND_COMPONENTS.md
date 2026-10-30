@@ -104,3 +104,8 @@ The user decides the exact component placements. Do not substitute or introduce 
 ## BranchedMenu (excluded by user, 2026-10-30)
 - User explicitly decided BranchedMenu will not be included in DermaGuard.
 - Do not request, integrate, render, or install dependencies solely for BranchedMenu unless the user later changes this decision.
+
+
+## RefineFrame (excluded by user, 2026-10-30)
+- User explicitly decided RefineFrame will not be included in DermaGuard.
+- Do not request, integrate, render, or install dependencies solely for RefineFrame unless the user later changes this decision.
