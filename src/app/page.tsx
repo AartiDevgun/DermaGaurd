@@ -867,7 +867,7 @@ export default function HomePage() {
                     <div className="review-flip__content">
                       <span className="review-flip__eyebrow">01 · IMAGE QUALITY</span>
                       <strong className="review-flip__percentage">
-                        {qualityResult ? Math.round(qualityResult.clarityScore) + '%' : '—'}
+                        {qualityResult ? qualityResult.clarityScore.toFixed(1) + '%' : '—'}
                       </strong>
                       <span className="review-flip__title">Image clarity</span>
                       <p>{qualityResult ? 'Quality assessment received.' : 'The clarity score appears when the Image Quality Agent responds.'}</p>
@@ -915,7 +915,7 @@ export default function HomePage() {
                       </span>
                       <div className="review-flip__confidence">
                         <span>CALIBRATED CONFIDENCE</span>
-                        <strong>{diagnosisResult ? Math.round(asUnitPercentage(diagnosisResult.calibratedConfidence)) + '%' : '—'}</strong>
+                        <strong>{diagnosisResult ? asUnitPercentage(diagnosisResult.calibratedConfidence).toFixed(1) + '%' : '—'}</strong>
                       </div>
                       <small>FLIP TO SEE ALL SEVEN CLASS SCORES <span aria-hidden="true">↗</span></small>
                     </div>
@@ -925,12 +925,14 @@ export default function HomePage() {
                       <span className="review-flip__eyebrow">DIAGNOSIS · CLASS DISTRIBUTION</span>
                       <h3>Model class scores</h3>
                       <div className="review-flip__class-list">
-                        {LESION_CLASSES.map(lesion => {
-                          const score = diagnosisResult?.classProbabilities.find(item => item.code === lesion.code)?.probability;
+                        {(diagnosisResult?.classProbabilities ?? LESION_CLASSES.map(lesion => ({ code: lesion.code, probability: null }))).map(item => {
+                          const lesion = LESION_CLASSES.find(entry => entry.code === item.code);
+                          const score = item.probability;
+                          if (!lesion) return null;
                           return (
                             <div className="review-flip__class-row" key={lesion.code}>
                               <span><b>{lesion.code}</b> {lesion.name}</span>
-                              <strong>{score === undefined ? '—' : Math.round(asUnitPercentage(score)) + '%'}</strong>
+                              <strong>{score === null ? '—' : asUnitPercentage(score).toFixed(1) + '%'}</strong>
                             </div>
                           );
                         })}
