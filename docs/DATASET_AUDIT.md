@@ -110,3 +110,16 @@
 - Validation class counts: akiec=63, bcc=104, bkl=137, df=18, mel=166, nv=1,027, vasc=20.
 - Split saved by user to `/content/drive/MyDrive/DermaGuard/internal_split.csv`.
 - This first fold is valid but has some class-proportion differences due to lesion-group constraints. Compare all five candidate folds and select a deterministic fold with the smallest class-distribution deviation before freezing the internal validation split.
+
+
+## Internal validation split frozen (reported by user, 2026-10-30)
+- Compared all five candidate `StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)` folds using a selection score equal to mean absolute class-proportion deviation plus absolute validation-size deviation from 20%.
+- Selected Fold 3 (best combined score under this predeclared comparison rule).
+- Training images: 6,208
+- Internal validation images: 1,554 (20.02%)
+- Training class counts: akiec=205, bcc=325, bkl=663, df=66, mel=696, nv=4,167, vasc=86
+- Validation class counts: akiec=44, bcc=75, bkl=185, df=22, mel=160, nv=1,045, vasc=23
+- Lesion overlap: 0
+- Split saved by user at `/content/drive/MyDrive/DermaGuard/internal_split.csv`.
+- This split is now frozen for model comparison. Do not reshuffle it based on validation performance.
+- Keep the separate official evaluation archive sealed until model selection, calibration and decision thresholds are frozen.
