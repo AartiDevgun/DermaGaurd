@@ -136,59 +136,137 @@ function makeSparkStyle(index: number): CSSProperties {
   } as CSSProperties;
 }
 
-function MoonAssistant() {
+function LunaAssistant() {
   const [open, setOpen] = useState(false);
   const [winking, setWinking] = useState(false);
   const [draft, setDraft] = useState('');
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [feedbackNotice, setFeedbackNotice] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      text: 'Hello. I’m Moon, your little guide to this research preview. Ask me how the image workspace is intended to work.'
+      text: 'Hi, I’m Luna. I can guide you through using DermaGuard, understanding its screening outputs and choosing a sensible next step. I can share general information, but I can’t diagnose a skin condition.'
     }
   ]);
 
-  const sendMessage = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const message = draft.trim();
+  const guideReply = (question: string) => {
+    const q = question.toLowerCase();
+    if (/upload|image|photo|picture|capture/.test(q)) {
+      return 'To begin, open “Start your image review” and choose “Image from device”. Use a clear, close, well-lit dermoscopic image. Avoid filters, edits and screenshots. You can preview the selected file before analysis. The current site preview does not send it to the model API yet.';
+    }
+    if (/result|prediction|class|confidence|score|probab/.test(q)) {
+      return 'Your planned result has two separate parts: (1) the Diagnosis Agent’s predicted class with scores for all seven classes — NV, MEL, BKL, BCC, AKIEC, VASC and DF; and (2) the Coordinator’s triage action. A model score is not a confirmed diagnosis or a guarantee. The result panel will populate once the six-agent backend is connected.';
+    }
+    if (/re.image|reimage|retake|blurry|blur|quality/.test(q)) {
+      return 'RE-IMAGE means the capture did not meet the image-quality requirements. Take another close, in-focus image with even lighting, no glare and no obstruction. Do not use filters or enhancement. The classifier should receive the original image data, not an artificially sharpened or altered version.';
+    }
+    if (/refer|dermatologist|doctor|specialist|professional/.test(q)) {
+      return 'REFER means the system has found suspicion, uncertainty, disagreement or a safety concern that should not be handled as an automatic screening disposition. Arrange an assessment with a qualified dermatologist or healthcare professional and show them the lesion and any changes you have noticed.';
+    }
+    if (/auto|triage|decision|next step/.test(q)) {
+      return 'The three planned actions are: AUTO-TRIAGE for a sufficiently reliable screening disposition with no safety veto; REFER when evidence is suspicious, uncertain or conflicting; and RE-IMAGE when the capture is inadequate. AUTO-TRIAGE is not a medical all-clear. Every image must still receive a class prediction as well as a triage action.';
+    }
+    if (/disease|melanoma|cancer|skin|lesion|mole|treat|symptom|itch|bleed|change|pain/.test(q)) {
+      return 'DermaGuard is a research screening aid, not a diagnosis or treatment service. A new or changing spot, an irregular or evolving mole, or a lesion that bleeds, crusts, hurts or does not heal should be checked by a qualified healthcare professional. Do not try to cut, burn or treat a suspicious lesion yourself. If you are worried, arrange a professional assessment rather than waiting for this website.';
+    }
+    if (/website|offer|feature|agent|how does|what can/.test(q)) {
+      return 'DermaGuard is being built around six cooperating roles: Image Quality checks the capture; Diagnosis predicts one of seven lesion classes; Lesion Analysis records visible morphology; Context handles optional age, gender and location fields; Safety checks conflicts and can veto an unsafe automatic route; and Coordinator applies the documented policy. The site also provides an image preview, a result area and a hidden-test CSV workflow.';
+    }
+    if (/feedback|suggest|improve|bug/.test(q)) {
+      return 'I can collect your rating and written feedback in this panel, but the feedback inbox has not been connected yet. It will not reach the project team until an email or storage destination is configured.';
+    }
+    return 'I can help with uploading an image, understanding the seven-class prediction, explaining AUTO-TRIAGE / REFER / RE-IMAGE, describing the six agents, or suggesting safe next steps. What would you like to know?';
+  };
+
+  const sendMessage = (raw: string) => {
+    const message = raw.trim();
     if (!message) return;
     setMessages(current => [
       ...current,
       { role: 'user', text: message },
-      {
-        role: 'assistant',
-        text: 'I’m a visual preview right now, not connected to an AI service. No message is sent to a model yet.'
-      }
+      { role: 'assistant', text: guideReply(message) }
     ]);
     setDraft('');
     setWinking(true);
   };
 
+  const sendForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    sendMessage(draft);
+  };
+
+  const saveFeedbackDraft = () => {
+    if (!rating && !feedback.trim()) {
+      setFeedbackNotice('Choose a rating or add a comment first.');
+      return;
+    }
+    setFeedbackNotice('Feedback is drafted in this session, but it is not delivered to the project team yet. A feedback destination still needs to be connected.');
+  };
+
+  const suggestions = [
+    'How do I upload an image?',
+    'What does REFER mean?',
+    'What can DermaGuard do?'
+  ];
+
   return (
-    <aside className="moon-assistant" aria-label="DermaGuard assistant">
+    <aside className="moon-assistant" aria-label="Luna, the DermaGuard guide">
       {open ? (
-        <div className="moon-panel">
+        <div className="moon-panel luna-panel">
           <div className="moon-panel__header">
             <div className="moon-panel__identity">
               <span className="moon-mini" aria-hidden="true">☾</span>
-              <span><strong>Moon</strong><small>DermaGuard guide · preview</small></span>
+              <span><strong>Luna</strong><small>Your DermaGuard guide</small></span>
             </div>
-            <button type="button" className="moon-close" onClick={() => setOpen(false)} aria-label="Close assistant">×</button>
+            <button type="button" className="moon-close" onClick={() => setOpen(false)} aria-label="Close Luna">×</button>
+          </div>
+          <div className="luna-suggestions">
+            {suggestions.map(item => (
+              <button type="button" key={item} onClick={() => sendMessage(item)}>{item}</button>
+            ))}
           </div>
           <div className="moon-messages" aria-live="polite">
             {messages.map((message, index) => (
               <div className={'moon-message moon-message--' + message.role} key={index}>{message.text}</div>
             ))}
           </div>
-          <form className="moon-compose" onSubmit={sendMessage}>
+          <form className="moon-compose" onSubmit={sendForm}>
             <input
               value={draft}
               onChange={event => setDraft(event.target.value)}
-              placeholder="Ask about the preview..."
-              aria-label="Message Moon"
+              placeholder="Ask Luna about your next step..."
+              aria-label="Message Luna"
             />
             <button type="submit" disabled={!draft.trim()} aria-label="Send message">↗</button>
           </form>
-          <p className="moon-disclaimer">AI chat is not connected in this build.</p>
+          <div className="luna-feedback">
+            <span className="method-label">HELP US IMPROVE DERMA GUARD</span>
+            <PeekRating
+              value={rating}
+              onChange={setRating}
+              shape="star"
+              size={19}
+              count={5}
+              activeColor="#9bc5ff"
+              idleColor="#465979"
+              tipColor="#112443"
+              tipTextColor="#eef5ff"
+              labels={['Needs work', 'Fair', 'Good', 'Very good', 'Excellent']}
+              ariaLabel="Rate the DermaGuard website"
+            />
+            <textarea
+              rows={2}
+              maxLength={1200}
+              value={feedback}
+              onChange={event => setFeedback(event.target.value)}
+              placeholder="What should we improve?"
+              aria-label="Website feedback"
+            />
+            <button type="button" className="luna-feedback__submit" onClick={saveFeedbackDraft}>Prepare feedback</button>
+            {feedbackNotice ? <p role="status">{feedbackNotice}</p> : null}
+          </div>
+          <p className="moon-disclaimer">Luna provides general website guidance, not a diagnosis. AI connection and feedback delivery are not configured yet.</p>
         </div>
       ) : null}
       <button
@@ -200,7 +278,7 @@ function MoonAssistant() {
         }}
         onMouseEnter={() => setWinking(true)}
         onMouseLeave={() => setWinking(false)}
-        aria-label={open ? 'Close Moon assistant' : 'Open Moon assistant'}
+        aria-label={open ? 'Close Luna guide' : 'Open Luna guide'}
         aria-expanded={open}
       >
         <span className="moon-halo" />
@@ -221,11 +299,11 @@ function MoonAssistant() {
           <path d="M24 36c2.4-3 5.1-3 7.6 0" fill="none" stroke="#25466f" strokeWidth="2.8" strokeLinecap="round" />
           <path d={winking ? 'M47 37c3.2 2.2 6 2.2 9.2 0' : 'M47 36c2.4-3 5.1-3 7.6 0'} fill="none" stroke="#25466f" strokeWidth="2.8" strokeLinecap="round" />
           <path d="M31 49c5.3 8.1 14.7 8.1 20 0" fill="none" stroke="#31547b" strokeWidth="2.7" strokeLinecap="round" />
-          <circle cx="22" cy="47" r="3.5" fill="#f6a9c8" opacity=".58" />
-          <circle cx="60" cy="47" r="3.5" fill="#f6a9c8" opacity=".58" />
+          <circle cx="22" cy="47" r="3.5" fill="#a7caff" opacity=".68" />
+          <circle cx="60" cy="47" r="3.5" fill="#a7caff" opacity=".68" />
           <path d="m70 15 2.2 4.6 4.8 2.1-4.8 2.2-2.2 4.7-2.1-4.7-4.8-2.2 4.8-2.1Z" fill="#e4f1ff" />
         </svg>
-        <span className="moon-launcher__label">Need a little guidance?</span>
+        <span className="moon-launcher__label">Meet Luna</span>
       </button>
     </aside>
   );
@@ -233,10 +311,8 @@ function MoonAssistant() {
 
 export default function HomePage() {
   const [logoDocked, setLogoDocked] = useState(false);
-  const [logoSettled, setLogoSettled] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
   const [activeAgent, setActiveAgent] = useState<AgentId>('quality');
-  const [previewRating, setPreviewRating] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -253,11 +329,9 @@ export default function HomePage() {
   useEffect(() => {
     const dockTimer = window.setTimeout(() => setLogoDocked(true), 1850);
     const revealTimer = window.setTimeout(() => setWorkspaceVisible(true), 2380);
-    const settleFallbackTimer = window.setTimeout(() => setLogoSettled(true), 3300);
     return () => {
       window.clearTimeout(dockTimer);
       window.clearTimeout(revealTimer);
-      window.clearTimeout(settleFallbackTimer);
     };
   }, []);
 
@@ -355,22 +429,16 @@ export default function HomePage() {
       <div className="ambient-glow" aria-hidden="true" />
 
       <div className={'brand-lockup' + (logoDocked ? ' brand-lockup--docked' : ' brand-lockup--intro')}>
-        <div
-          className="brand-emblem"
-          onTransitionEnd={event => {
-            if (event.propertyName === 'width' && logoDocked) setLogoSettled(true);
-          }}
-        >
-          {logoSettled ? (
-            <img className="brand-static-mark" src={logoSrc} alt="" />
-          ) : (
+        <div className="brand-emblem">
+          <img className="brand-base-mark" src={logoSrc} alt="" />
+          {!logoDocked ? (
             <ElectricLogo
               src={logoSrc}
-              color="#b9d6ff"
-              glowColor="#668cff"
+              color="#bdd9ff"
+              glowColor="#5d96ff"
               scale={0.82}
-              intensity={1.25}
-              glow={1.2}
+              intensity={1.18}
+              glow={1.05}
               thickness={1.65}
               strands={5}
               bend={0.55}
@@ -383,7 +451,7 @@ export default function HomePage() {
               cursorRadius={90}
               className="electric-logo-instance"
             />
-          )}
+          ) : null}
         </div>
         <div className="brand-type">
           <span className="brand-wordmark">DermaGuard</span>
@@ -404,7 +472,7 @@ export default function HomePage() {
 
         <section className="quote-section" aria-label="Prevention quote">
           <p className="quote-overline">A PRINCIPLE WORTH REMEMBERING</p>
-          <blockquote>“An ounce of prevention is worth a <span>pound of cure.</span>”</blockquote>
+          <blockquote>“An ounce of prevention is greater than a <span>pound of cure.</span>”</blockquote>
           <p className="quote-caption">— <strong>Benjamin Franklin</strong></p>
         </section>
 
@@ -754,7 +822,7 @@ export default function HomePage() {
 
       </div>
       {isProcessing ? <ProcessingScreen stage={processingStage} /> : null}
-      {workspaceVisible ? <MoonAssistant /> : null}
+      {workspaceVisible ? <LunaAssistant /> : null}
     </main>
   );
 }
