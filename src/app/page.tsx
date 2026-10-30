@@ -83,7 +83,7 @@ const AGENTS: AgentSpec[] = [
   }
 ];
 
-const logoSrc = '/brand/dg-mark.svg';
+const logoSrc = '/brand/dermaguard-shield.webp';
 
 function makePetalStyle(index: number): CSSProperties {
   const left = (index * 43 + (index % 5) * 11) % 100;
