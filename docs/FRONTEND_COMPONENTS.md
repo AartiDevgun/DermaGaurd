@@ -55,3 +55,11 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Runtime dependencies: `@hugeicons/react` and `@hugeicons/core-free-icons`.
 - Its implementation is an accessible animated combobox/listbox for selecting among predefined options. It does not itself open the operating-system file picker or upload a file. The actual image selection must use an HTML file input; GlideSelect can be used for an adjacent choice only if the product flow needs one. Do not claim GlideSelect itself handles file upload.
 - Source has been received; integration is deferred until the app scaffold and user-authorised placements are ready.
+
+
+## CallChip source received (2026-10-30)
+- User supplied CallChip.tsx and CallChip.css.
+- States: idle, running, done, error; elapsed timer, visual progress wash, done/error styling, optional retry callback.
+- Dependencies: @hugeicons/react and @hugeicons/core-free-icons.
+- Drive status from the actual upload/request lifecycle. The elapsed timer measures real running time. expectedMs controls the visual fill transition estimate; it is not actual upload percentage. Do not fabricate upload progress.
+- Integration is deferred until the app scaffold is ready.
