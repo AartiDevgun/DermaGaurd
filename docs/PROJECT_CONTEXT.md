@@ -95,3 +95,13 @@ After each meaningful milestone, update this file and the README with what chang
 - Build: Next.js 16.4.3 optimized build, TypeScript validation and static prerender completed. npm audit reported 0 vulnerabilities.
 - Build warnings recorded: Vercel/npm emitted a non-blocking unknown `cache-dir` environment-config warning, an npm install-scripts allowlist warning for `unrs-resolver`, and the broad Node engine range warning. The build nevertheless completed successfully.
 - Scope: this is the informational landing screen only. Image selection, Agent 1, the diagnosis model/API and result rendering are not connected yet.
+
+
+## Frontend correction and latest production deployment (2026-10-30)
+- Replaced the initial brochure-style homepage after user feedback.
+- The approved generated DG monogram is used as the source image for the supplied ElectricLogo WebGL effect. The lockup begins centred and docks in the upper-right after its visual intro.
+- Removed the phrase “DERMOSCOPIC IMAGE SCREENING/RESEARCH PROJECT” and the marketing sections.
+- Added the real supplied React Bits PromptBar TSX/CSS and other selected component source files.
+- Background is predominantly black, with deeper blue/purple light and 84 falling shards. Shards/ambient glow are suppressed while LightTunnel is active.
+- Production commit: `a5903d8e7358d5a64f166310a7630b63c1a22cba`; deployment `dpl_2G5SxkXjGRVnMKDenxdVMTJ8W1sa`; state READY; alias `https://dermaguard.vercel.app`.
+- The browser-side image picker and preview are implemented. The upload/quality-agent/diagnosis API is not connected yet; the user interface must not imply an image has been analyzed until those services exist.
