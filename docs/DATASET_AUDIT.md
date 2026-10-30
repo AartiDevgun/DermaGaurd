@@ -43,3 +43,19 @@
 2. Decode a deterministic sample of images and report dimensions, modes and any corrupt samples.
 3. Resolve whether eval data is in a separate organizer archive or release.
 4. Only then build the extraction/data-loader pipeline and training split.
+
+
+## Follow-up integrity audit (reported by user, 2026-10-30)
+- ZIP JPG count: 7,762
+- Metadata rows: 7,762
+- Unique image IDs: 7,762
+- Unique metadata IDs: 7,762
+- Images without metadata: 0
+- Metadata rows without images: 0
+- Duplicate image IDs: 0
+- Duplicate metadata IDs: 0
+- Unique lesion IDs: 5,815
+- Random integrity sample: 50 images; all decoded successfully; all were 600x450 RGB; no corrupt sample images.
+- Result: image-to-metadata ID verification passed.
+- Limitation: only a random sample of 50 images has been decoded. A complete decode audit remains outstanding.
+- Next: create a stratified, lesion-grouped internal model-development validation split; never split images from the same lesion across train and internal validation. Keep this internal split distinct from the organizer evaluation partition.
