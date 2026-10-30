@@ -153,3 +153,16 @@ The user decides the exact component placements. Do not substitute or introduce 
 - GlideSelect is used as the image preview fit control. JellyRadio remains unplaced until the user selects a purpose.
 - CallChip reflects the local image-ready state. LightTunnel and LatticeLoader are structured for the real quality-agent processing state; FlipCard and PeekRating are only shown when actual quality-agent results exist.
 - BranchedMenu and RefineFrame remain excluded.
+
+
+## Revised frontend production build (2026-10-30)
+- Latest successful production commit: `a5903d8e7358d5a64f166310a7630b63c1a22cba`.
+- Vercel deployment: `dpl_2G5SxkXjGRVnMKDenxdVMTJ8W1sa`; state `READY`; production alias `https://dermaguard.vercel.app`.
+- Actual React Bits TSX/CSS source added for ElectricLogo, GlideSelect, CallChip, LatticeLoader, LightTunnel, FlipCard, PeekRating, JellyRadio and PromptBar.
+- BranchedMenu and RefineFrame remain excluded.
+- ElectricLogo uses the generated DG mark artwork isolated as `public/brand/dg-mark.svg`; initial centred lockup docks at the top-right after the intro.
+- Homepage brochure content and the user-identified “DERMOSCOPIC IMAGE SCREENING/RESEARCH PROJECT” heading were removed.
+- Black is the primary background with blue/purple radial hues and 84 falling shards; both shard field and ambient glow are suspended during LightTunnel.
+- PromptBar is configured for local image selection and a note. GlideSelect switches the preview between fit and fill. CallChip indicates only that a file is locally ready.
+- The frontend does not yet make a network upload or run Agent 1 / the classifier. LightTunnel/LatticeLoader and FlipCard/PeekRating are gated on future real processing/results; no fake progress or result is shown.
+- Latest Vercel build: Next.js compile succeeded, TypeScript succeeded, static routes generated, deployment READY. npm audit reported zero vulnerabilities.
