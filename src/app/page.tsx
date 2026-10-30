@@ -556,7 +556,7 @@ export default function HomePage() {
           </section>
         ) : null}
       </div>
-      <MoonAssistant />
+      {workspaceVisible ? <MoonAssistant /> : null}
     </main>
   );
 }
