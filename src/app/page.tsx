@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
 import ElectricLogo from '@/components/react-bits/ElectricLogo';
-import PromptBar from '@/components/react-bits/PromptBar';
 import GlideSelect from '@/components/react-bits/GlideSelect';
 import CallChip from '@/components/react-bits/CallChip';
 import FlipCard from '@/components/react-bits/FlipCard';
 import PeekRating from '@/components/react-bits/PeekRating';
 import JellyRadio from '@/components/react-bits/JellyRadio';
-import { Attachment01Icon } from '@hugeicons/core-free-icons';
 import ProcessingScreen from '@/components/ProcessingScreen';
 
 type ChatMessage = { role: 'user' | 'assistant'; text: string };
@@ -146,37 +144,44 @@ function LunaAssistant() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      text: 'Hi, I’m Luna. I can guide you through using DermaGuard, understanding its screening outputs and choosing a sensible next step. I can share general information, but I can’t diagnose a skin condition.'
+      text: 'Hey! I’m Luna, your DermaGuard buddy. Confused about an upload or a result? Just ask — I’ll explain things in plain English and help you find your way around. I can guide you, but I can’t diagnose a skin spot.'
     }
   ]);
 
   const guideReply = (question: string) => {
-    const q = question.toLowerCase();
+    const q = question.toLowerCase().trim();
+
+    if (/^(hi|hey|heya|hello|yo|sup|what's up)(?:\\s+luna)?[!.?\\s]*$/.test(q)) {
+      return 'Heyyy! What’s up? Need help with an upload, a result, or something else? I’m listening.';
+    }
+    if (/how are you|how's it going/.test(q)) {
+      return 'Doing well — especially now that you’re here. What are we figuring out today?';
+    }
     if (/upload|image|photo|picture|capture/.test(q)) {
-      return 'To begin, open “Start your image review” and choose “Image from device”. Use a clear, close, well-lit dermoscopic image. Avoid filters, edits and screenshots. You can preview the selected file before analysis. The current site preview does not send it to the model API yet.';
+      return 'Easy! Head to “Start your image review” and tap “Choose image”. Pick a clear dermoscopic picture with good lighting. Avoid filters or screenshots. You’ll see a preview here, but the actual image analysis isn’t connected yet.';
     }
     if (/result|prediction|class|confidence|score|probab/.test(q)) {
-      return 'Your planned result has two separate parts: (1) the Diagnosis Agent’s predicted class with scores for all seven classes — NV, MEL, BKL, BCC, AKIEC, VASC and DF; and (2) the Coordinator’s triage action. A model score is not a confirmed diagnosis or a guarantee. The result panel will populate once the six-agent backend is connected.';
+      return 'When the analysis is connected, you’ll see two things: the model’s prediction across seven skin-lesion classes, and the screening action chosen by the Coordinator. The scores describe the model’s output — they aren’t a diagnosis. Share a result with me and I’ll help you understand each part.';
     }
     if (/re.image|reimage|retake|blurry|blur|quality/.test(q)) {
-      return 'RE-IMAGE means the capture did not meet the image-quality requirements. Take another close, in-focus image with even lighting, no glare and no obstruction. Do not use filters or enhancement. The classifier should receive the original image data, not an artificially sharpened or altered version.';
+      return 'RE-IMAGE simply means the picture wasn’t clear enough to review properly. Try again with the spot in focus, even lighting and no glare. Skip filters or edits — the original image matters.';
     }
     if (/refer|dermatologist|doctor|specialist|professional/.test(q)) {
-      return 'REFER means the system has found suspicion, uncertainty, disagreement or a safety concern that should not be handled as an automatic screening disposition. Arrange an assessment with a qualified dermatologist or healthcare professional and show them the lesion and any changes you have noticed.';
+      return 'REFER means it’s safer to have a qualified dermatologist or clinician take a look. It can be triggered by something suspicious, unclear or conflicting in the evidence. Bring along the image and mention any changes you’ve noticed.';
     }
     if (/auto|triage|decision|next step/.test(q)) {
-      return 'The three planned actions are: AUTO-TRIAGE for a sufficiently reliable screening disposition with no safety veto; REFER when evidence is suspicious, uncertain or conflicting; and RE-IMAGE when the capture is inadequate. AUTO-TRIAGE is not a medical all-clear. Every image must still receive a class prediction as well as a triage action.';
+      return 'Here’s the simple version: AUTO-TRIAGE is the system’s screening decision, REFER means a clinician should review it, and RE-IMAGE means the picture needs to be taken again. Even AUTO-TRIAGE is not a medical all-clear.';
     }
     if (/disease|melanoma|cancer|skin|lesion|mole|treat|symptom|itch|bleed|change|pain/.test(q)) {
-      return 'DermaGuard is a research screening aid, not a diagnosis or treatment service. A new or changing spot, an irregular or evolving mole, or a lesion that bleeds, crusts, hurts or does not heal should be checked by a qualified healthcare professional. Do not try to cut, burn or treat a suspicious lesion yourself. If you are worried, arrange a professional assessment rather than waiting for this website.';
+      return 'That can be worrying. I can’t tell what a spot is from chat. If it’s new, changing, uneven, bleeding, painful or not healing, please arrange a check with a dermatologist or another qualified clinician. Don’t try to remove or treat a suspicious spot yourself.';
     }
     if (/website|offer|feature|agent|how does|what can/.test(q)) {
-      return 'DermaGuard is being built around six cooperating roles: Image Quality checks the capture; Diagnosis predicts one of seven lesion classes; Lesion Analysis records visible morphology; Context handles optional age, gender and location fields; Safety checks conflicts and can veto an unsafe automatic route; and Coordinator applies the documented policy. The site also provides an image preview, a result area and a hidden-test CSV workflow.';
+      return 'Think of DermaGuard as six specialists working together: one checks image quality, one predicts a class, one looks at visible features, one considers the details you share, one checks for safety issues, and the Coordinator brings it all together. I can walk you through any of those — no jargon required.';
     }
     if (/feedback|suggest|improve|bug/.test(q)) {
-      return 'I can collect your rating and written feedback in this panel, but the feedback inbox has not been connected yet. It will not reach the project team until an email or storage destination is configured.';
+      return 'Please do tell me what you think! The rating and comment box are here, but the feedback inbox isn’t connected yet, so your note won’t reach the project team just now.';
     }
-    return 'I can help with uploading an image, understanding the seven-class prediction, explaining AUTO-TRIAGE / REFER / RE-IMAGE, describing the six agents, or suggesting safe next steps. What would you like to know?';
+    return 'Hmm, I’m not quite sure what you mean yet. Tell me what you’re stuck on — the image upload, a screening result, or just finding your way around — and we’ll take it one step at a time.';
   };
 
   const sendMessage = (raw: string) => {
@@ -266,7 +271,7 @@ function LunaAssistant() {
             <button type="button" className="luna-feedback__submit" onClick={saveFeedbackDraft}>Prepare feedback</button>
             {feedbackNotice ? <p role="status">{feedbackNotice}</p> : null}
           </div>
-          <p className="moon-disclaimer">Luna provides general website guidance, not a diagnosis. AI connection and feedback delivery are not configured yet.</p>
+          <p className="moon-disclaimer">I can explain the site, but I can’t tell you what a skin spot is. The live image analysis and feedback inbox aren’t connected yet.</p>
         </div>
       ) : null}
       <button
@@ -319,12 +324,10 @@ export default function HomePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
-  const [savedPrompt, setSavedPrompt] = useState('');
   const [contextAge, setContextAge] = useState('');
   const [contextGender, setContextGender] = useState('');
   const [contextLocation, setContextLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const attachResolver = useRef<((value?: string) => void) | null>(null);
 
   useEffect(() => {
     const dockTimer = window.setTimeout(() => setLogoDocked(true), 1850);
@@ -355,50 +358,23 @@ export default function HomePage() {
     return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  const attachImage = () =>
-    new Promise<string | void>((resolve) => {
-      attachResolver.current = resolve;
-      if (!fileInputRef.current) {
-        attachResolver.current = null;
-        resolve();
-        return;
-      }
-      fileInputRef.current.value = '';
-      fileInputRef.current.click();
-    });
-
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
-    if (!file) {
-      attachResolver.current?.();
-      attachResolver.current = null;
-      return;
-    }
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
     if (!file.type.startsWith('image/')) {
       setNotice('Please choose an image file.');
-      attachResolver.current?.();
-      attachResolver.current = null;
+      input.value = '';
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
       setNotice('This image is larger than 25 MB. Choose a smaller image.');
-      attachResolver.current?.();
-      attachResolver.current = null;
+      input.value = '';
       return;
     }
     setSelectedFile(file);
     setNotice('');
-    attachResolver.current?.(file.name);
-    attachResolver.current = null;
-  };
-
-  const handleSend = (text: string) => {
-    setSavedPrompt(text);
-    if (!selectedFile) {
-      setNotice('Choose a dermoscopic image first. Nothing has been uploaded.');
-      return;
-    }
-    setNotice('Your image is ready in this browser. The six-agent API is not connected yet, so no analysis has run and no result has been fabricated.');
+    input.value = '';
   };
 
   const activeAgentDetails = AGENTS.find(agent => agent.id === activeAgent) ?? AGENTS[0];
@@ -523,7 +499,7 @@ export default function HomePage() {
                 <span className="workspace-mark">DG</span>
                 <div><strong>Image workspace</strong><span>Prepare an image for review</span></div>
               </div>
-              <span className="local-badge"><i /> IMAGE PREVIEW · API PENDING</span>
+              <span className="local-badge"><i /> LOCAL IMAGE PREVIEW</span>
             </div>
 
             {selectedFile && previewUrl ? (
@@ -565,28 +541,35 @@ export default function HomePage() {
             ) : null}
 
             <div className="composer-wrap">
-              <PromptBar
-                placeholder="Attach the dermoscopic image you want reviewed..."
-                sources={[{
-                  key: 'image',
-                  name: 'Image from device',
-                  description: 'Choose a dermoscopic image',
-                  icon: Attachment01Icon,
-                  attach: true
-                }]}
-                commands={[]}
-                models={[]}
-                efforts={[]}
-                width={760}
-                background="rgba(8, 17, 34, 0.94)"
-                color="#eef5ff"
-                menuBackground="#111f39"
-                sparkColor="#8db7ff"
-                sparkBoost={1.05}
-                radius={19}
-                onAttach={attachImage}
-                onSend={handleSend}
-              />
+              <div className="upload-card">
+                <div className="upload-card__visual" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M12 20.5a5.5 5.5 0 0 1 5.5-5.5h7l4-5h9l4 5h5A5.5 5.5 0 0 1 52 20.5v25a5.5 5.5 0 0 1-5.5 5.5h-29a5.5 5.5 0 0 1-5.5-5.5v-25Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+                    <circle cx="32" cy="32" r="10" stroke="currentColor" strokeWidth="1.8"/>
+                    <circle cx="32" cy="32" r="3.2" fill="currentColor" opacity=".72"/>
+                    <path d="m43 22 3.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                  <span className="upload-card__spark">✳</span>
+                </div>
+                <div className="upload-card__copy">
+                  <span className="upload-card__eyebrow">START WITH A PHOTO</span>
+                  <h3>Choose a skin image</h3>
+                  <p>A sharp, evenly lit dermoscopic image works best. Keep the original image free of filters or edits.</p>
+                  <span className="upload-card__formats">PNG · JPG · WEBP · UP TO 25 MB</span>
+                </div>
+                <button
+                  type="button"
+                  className="upload-card__button"
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                      fileInputRef.current.click();
+                    }
+                  }}
+                >
+                  <span aria-hidden="true">↑</span> Choose image
+                </button>
+              </div>
               <input
                 ref={fileInputRef}
                 className="visually-hidden-file-input"
@@ -596,21 +579,21 @@ export default function HomePage() {
                 tabIndex={-1}
                 aria-hidden="true"
               />
-              <div className="composer-meta">
-                <span>PNG · JPG · WEBP · UP TO 25 MB</span>
-                <span>Image stays in this browser until API integration.</span>
-              </div>
+              <p className="upload-card__privacy">Your image is only previewed in this browser right now. The analysis connection is not live yet.</p>
             </div>
 
             <div className="context-fields">
               <div className="context-fields__heading">
-                <span className="micro-label">OPTIONAL PATIENT CONTEXT</span>
-                <span>Leave unknown fields blank.</span>
+                <div className="context-fields__title">
+                  <span className="micro-label">A LITTLE CONTEXT</span>
+                  <p>Tell us a little about the spot.</p>
+                </div>
+                <span>Everything here is optional.</span>
               </div>
               <div className="context-fields__grid">
                 <label>
                   <span>Age</span>
-                  <input type="number" min="0" max="120" inputMode="numeric" placeholder="Not provided" value={contextAge} onChange={event => setContextAge(event.target.value)} />
+                  <input type="number" min="0" max="120" inputMode="numeric" placeholder="e.g. 35" value={contextAge} onChange={event => setContextAge(event.target.value)} />
                 </label>
                 <label>
                   <span>Gender</span>
@@ -623,8 +606,8 @@ export default function HomePage() {
                   </select>
                 </label>
                 <label className="context-fields__location">
-                  <span>Lesion location</span>
-                  <input type="text" maxLength={100} placeholder="e.g. upper back (optional)" value={contextLocation} onChange={event => setContextLocation(event.target.value)} />
+                  <span>Where is the spot?</span>
+                  <input type="text" maxLength={100} placeholder="e.g. upper back" value={contextLocation} onChange={event => setContextLocation(event.target.value)} />
                 </label>
               </div>
             </div>
@@ -656,7 +639,6 @@ export default function HomePage() {
             </div>
 
             {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
-            {savedPrompt ? <p className="saved-prompt">NOTE <span>{savedPrompt}</span></p> : null}
             <div className="review-footnote">
               <span className="footnote-star" aria-hidden="true">✳</span>
               <span>For research and educational use. This experience is not a medical diagnosis or a substitute for professional care.</span>
