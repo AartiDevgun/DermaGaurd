@@ -4,7 +4,7 @@ A two-stage dermoscopic image screening and triage research project.
 
 ## Current status
 
-The repository now contains the initial Next.js frontend foundation and a first responsive landing screen. The supplied React Bits components and the live analysis workflow are being integrated incrementally. No mock diagnosis is presented as a real model result.
+The initial Next.js frontend is deployed at https://dermaguard.vercel.app. It currently serves an informational landing screen; the image upload, analysis agents and real inference endpoint are still being integrated. No mock diagnosis is presented as a real model result.
 
 ## Product flow
 
@@ -13,6 +13,11 @@ The repository now contains the initial Next.js frontend foundation and a first 
 3. **Diagnosis Agent** — evaluates accepted original images across the seven HAM10000 lesion classes.
 
 DermaGuard is intended as screening support, not a definitive diagnosis or a replacement for a qualified healthcare professional.
+
+## Live site
+
+- Production: https://dermaguard.vercel.app
+- Vercel project: `dermaguard` (production deployment reported READY)
 
 ## Frontend
 
