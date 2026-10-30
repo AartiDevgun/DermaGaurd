@@ -134,3 +134,13 @@
 - Status: training has not started.
 - Action: user is switching Colab runtime to T4 GPU if available. Re-run the hardware preflight after runtime restart; confirm CUDA is available and GPU model is visible before installing model dependencies or extracting data.
 - Note: Colab GPU availability is quota/availability dependent; do not assume a T4 will always be granted.
+
+
+## GPU runtime confirmed (reported by user, 2026-10-30)
+- PyTorch: 2.11.0+cu130
+- CUDA available: true
+- GPU: NVIDIA Tesla T4
+- Reported VRAM: 14.56 GB
+- This runtime is suitable for initial pretrained CNN/vision-model experiments with careful batch sizing and mixed precision.
+- Do not assume every torchvision/timm wheel is compatible with this Colab image; verify imports and a real CUDA tensor operation before proceeding.
+- Next: GPU execution and package compatibility smoke test; then extract only the training archive into local Colab storage.
