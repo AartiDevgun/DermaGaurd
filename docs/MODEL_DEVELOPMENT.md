@@ -75,3 +75,16 @@ Use ImageNet pretrained weights as initialisation if download/terms permit. Pret
 - Class mapping confirmed: akiec=0, bcc=1, bkl=2, df=3, mel=4, nv=5, vasc=6.
 - Important: keep the exact same resize/pad and normalization in inference preprocessing. Preserve the original image for all diagnostic inference.
 - Next: inspect torchvision pretrained architecture compatibility and benchmark model parameter count, GPU memory and inference latency before selecting training candidates.
+
+
+## Pretrained architecture compatibility smoke test (reported by user, 2026-10-30)
+All five torchvision pretrained architectures downloaded, constructed with a 7-class head and completed two FP16-autocast forward/backward optimizer steps on random tensors using batch size 8.
+- EfficientNet-B0: 4.02M parameters; peak allocated GPU memory 0.42 GB; reported 2-step average 3.107 s.
+- EfficientNet-B2: 7.71M; 0.62 GB; 0.514 s.
+- ResNet50: 23.52M; 0.73 GB; 0.201 s.
+- DenseNet121: 6.96M; 0.78 GB; 0.376 s.
+- ConvNeXt-Tiny: 27.83M; 0.93 GB; 2.949 s.
+- All five returned output shape [8,7] and passed.
+- Interpretation: all architectures are technically compatible with this T4 and fit at batch size 8. The observed two-step timing is not a valid comparative benchmark (too few iterations, first-use/CUDA/cuDNN warmup effects and random inputs), so do not rank or select models from those timings.
+- The official pretrained weights were obtained from PyTorch's public model-weight distribution; model downloads are cached in the Colab runtime and may need to be re-downloaded after a reset.
+- Next: benchmark with real HAM10000 batches, intended batch size, warm-up iterations and sufficient timed iterations; then compare actual validation metrics during controlled fine-tuning.
