@@ -151,7 +151,7 @@ function LunaAssistant() {
   const guideReply = (question: string) => {
     const q = question.toLowerCase().trim();
 
-    if (/^(hi|hey|heya|hello|yo|sup|what's up)(?:\\s+luna)?[!.?\\s]*$/.test(q)) {
+    if (/^(hi|hey|heya|hello|yo|sup|what's up)(?:\s+luna)?[!.?\s]*$/.test(q)) {
       return 'Heyyy! What’s up? Need help with an upload, a result, or something else? I’m listening.';
     }
     if (/how are you|how's it going/.test(q)) {
