@@ -30,6 +30,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   isolation: isolate;
   min-height: 100svh;
   overflow: hidden;
+  background: #030812;
+}
+.dermaguard-app--revealed {
   background:
     radial-gradient(ellipse 58% 50% at 80% 13%, rgba(40, 92, 165, .2), transparent 72%),
     radial-gradient(ellipse 50% 45% at 12% 69%, rgba(29, 84, 151, .16), transparent 72%),
@@ -157,11 +160,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .brand-lockup--docked {
   top: 18px;
-  right: clamp(20px, 4.2vw, 64px);
-  left: auto;
+  left: calc(100% - clamp(20px, 4.2vw, 64px) - 160px);
+  right: auto;
   flex-direction: row;
   gap: 9px;
-  width: auto;
+  width: 160px;
   transform: none;
   text-align: left;
 }
@@ -181,8 +184,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   gap: 7px;
   overflow: hidden;
   white-space: nowrap;
-  transition: align-items 650ms var(--ease), gap 650ms var(--ease);
+  opacity: 0;
+  max-height: 0;
+  transition: align-items 650ms var(--ease), gap 650ms var(--ease), opacity 500ms ease, max-height 700ms var(--ease);
 }
+.brand-lockup--docked .brand-type { opacity: 1; max-height: 38px; }
 .brand-lockup--docked .brand-type { align-items: flex-start; gap: 2px; }
 .brand-wordmark {
   color: transparent;
@@ -211,6 +217,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   z-index: 2;
   display: flex;
   flex-direction: column;
+  visibility: hidden;
   width: min(100% - 112px, 1240px);
   margin: 0 auto;
   padding: 34px 0 28px;
@@ -218,7 +225,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   transform: translateY(16px);
   transition: opacity 1000ms ease, transform 1200ms var(--ease);
 }
-.workspace--visible { opacity: 1; transform: none; }
+.workspace--visible { opacity: 1; transform: none; visibility: visible; }
 .site-header {
   display: flex;
   align-items: center;
@@ -895,7 +902,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 680px) {
   .brand-lockup--intro { width: 82vw; }
   .brand-emblem { width: 210px; height: 170px; }
-  .brand-lockup--docked { top: 12px; right: 14px; gap: 5px; }
+  .brand-lockup--docked { top: 12px; left: calc(100% - 145px - 14px); right: auto; width: 145px; gap: 5px; }
   .brand-lockup--docked .brand-emblem { width: 37px; height: 32px; }
   .brand-lockup--docked .brand-wordmark { font-size: 12px; }
   .brand-lockup--docked .brand-tagline { display: none; }
