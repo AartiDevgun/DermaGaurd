@@ -4,7 +4,7 @@ A two-stage dermoscopic image screening and triage research project.
 
 ## Current status
 
-The Next.js frontend is deployed at https://dermaguard.vercel.app. The homepage is a focused image-review workspace with the generated DG ElectricLogo intro and a React Bits PromptBar for local image selection. The screening API is still being integrated; no mock diagnosis is presented as a real model result.
+The Next.js frontend is deployed at https://dermaguard.vercel.app. The homepage is a focused image-review workspace with the generated DG ElectricLogo intro and a React Bits PromptBar for local image selection. The image picker and browser preview work; the screening API is not connected yet. No mock diagnosis is presented as a real model result.
 
 ## Product flow
 
