@@ -154,3 +154,13 @@
 - FP16 autocast matrix multiplication: passed
 - Result: GPU and mixed-precision execution confirmed; training has still not begun.
 - Next: extract only `Health/training/images/` and `Health/training/metadata.csv` from training ZIP into Colab local storage. Do not extract or inspect eval images for training.
+
+
+## Training archive extracted successfully (reported by user, 2026-10-30)
+- Extracted from `Copy of health-training.zip` into Colab local storage.
+- Image count extracted: 7,762 (matches archive count).
+- Metadata extracted: `/content/dermaguard_data/training/metadata.csv`.
+- Image directory: `/content/dermaguard_data/training/images`.
+- Evaluation archive was not extracted.
+- Important: `/content/dermaguard_data` is ephemeral Colab local storage and will be lost on runtime reset. Original ZIP and frozen split remain in Google Drive.
+- Next: verify actual image IDs, metadata IDs and frozen split CSV alignment before creating the data loader.
