@@ -82,3 +82,12 @@ The user decides the exact component placements. Do not substitute or introduce 
 - The component uses a WebGL2 context; provide a graceful non-WebGL fallback in the application shell when implementing the page, without altering the supplied component source.
 - Timing/state must reflect the real quality-agent request lifecycle. Its 1.8-second intro is visual animation, not a simulated processing duration.
 - Integration is deferred until the app scaffold is ready.
+
+
+## FlipCard source received (2026-10-30)
+- User supplied FlipCard.tsx and FlipCard.css.
+- Supports controlled/uncontrolled flipping, drag gestures, tilt, glare, spring motion, keyboard activation, and reduced-motion behavior.
+- Runtime dependency: motion (imports from motion/react).
+- Intended role: show the Image Quality Agent's clarity score on the front and its evidence/reasons on the reverse. Populate both sides from the real quality-agent response; do not hard-code a score or fabricate reasons.
+- FlipCard's visual width/height and flip behavior will be configured in the page layout; the component source should otherwise be preserved.
+- Integration is deferred until the app scaffold is ready.
