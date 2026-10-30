@@ -93,9 +93,6 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Integration is deferred until the app scaffold is ready.
 
 
-## PeekRating source received (2026-10-30)
-- User supplied PeekRating.tsx and PeekRating.css.
-- Supports controlled/uncontrolled ratings, star/heart/bolt shapes, hover preview labels, keyboard interaction, read-only and disabled modes, and reduced-motion behavior.
-- Runtime dependencies: @hugeicons/react and @hugeicons/core-free-icons.
-- Intended role: collect optional user experience feedback after displaying the analysis result. This is feedback about the app experience, not a verified diagnostic label and must not be used as ground-truth training data.
-- Integration is deferred until the app scaffold is ready.
+## PeekRating (excluded by user, 2026-10-30)
+- User supplied the component source for review but explicitly decided not to include PeekRating in DermaGuard.
+- Do not integrate, render, or install dependencies solely for PeekRating unless the user later changes this decision.
