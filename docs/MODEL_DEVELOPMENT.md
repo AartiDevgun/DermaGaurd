@@ -155,3 +155,27 @@ Benchmark used an actual HAM10000 batch, batch size 32, FP16 autocast, warm-up a
 - DataLoader multiprocessing cleanup warnings during initial 12-epoch run did not prevent completion. Use `num_workers=0` in future notebook loaders.
 - Final validation report and predictions were saved to Google Drive by the user's notebook. Official evaluation set remains untouched.
 - Next experiment: controlled comparison of EfficientNet-B2 and ResNet50 against the B0 baseline using the exact same split, 224x224 letterbox preprocessing and validation-only model selection. Simplify checkpoint format to model state dict + JSON/CSV metadata, keep checkpoint writes robust, and use num_workers=0. Do not tune against or run inference on the official eval set yet.
+
+
+## EfficientNet-B2 baseline completed (2026-10-30)
+- Training completed on Tesla T4 for 12 epochs with the same internal validation split; no official evaluation-set data was used.
+- Best checkpoint: `/content/drive/MyDrive/DermaGuard/checkpoints/efficientnet_b2_best.pth`.
+- Best validation macro F1: 0.7040 (epoch 12); validation accuracy 0.8224; balanced accuracy 0.6872.
+- Final training accuracy: 0.9652; validation accuracy: 0.8224, a 14.28 percentage-point gap consistent with substantial overfitting.
+- B2 classification report (class order akiec, bcc, bkl, df, mel, nv, vasc):
+  * akiec: precision 0.7576, recall 0.5682, F1 0.6494, support 44
+  * bcc: precision 0.7324, recall 0.6933, F1 0.7123, support 75
+  * bkl: precision 0.6667, recall 0.7027, F1 0.6842, support 185
+  * df: precision 0.6111, recall 0.5000, F1 0.5500, support 22
+  * mel: precision 0.5417, recall 0.5687, F1 0.5549, support 160
+  * nv: precision 0.9073, recall 0.9081, F1 0.9077, support 1045
+  * vasc: precision 0.8696, recall 0.8696, F1 0.8696, support 23
+- Comparison with the earlier EfficientNet-B0 internal-validation baseline:
+  * Accuracy: B0 0.8250; B2 0.8224.
+  * Macro F1: B0 0.6800; B2 0.7040.
+  * Balanced accuracy: B0 0.6559; B2 0.6872.
+  * Melanoma recall: B0 0.4750; B2 0.5687.
+  * Melanoma F1: B0 0.5429; B2 0.5549.
+- B2 is the stronger candidate on macro F1 and balanced accuracy, despite slightly lower overall accuracy. Melanoma recall improves by 9.37 percentage points, but remains only 56.87% (roughly 69 of 160 validation melanomas are still missed); this is not suitable for standalone diagnosis or ruling out melanoma.
+- Other concerns: DF recall is 0.5000 on only 22 validation examples; VASC support is only 23. Small class supports make per-class estimates uncertain. B2's melanoma precision (0.5417) is also modest.
+- Decision: retain B2 as the current leading candidate for further validation, not as a final clinical-ready model. Next work should investigate generalisation and calibration on internal data, error analysis and confidence thresholds; preserve the separate official evaluation set until model selection and tuning are frozen.
