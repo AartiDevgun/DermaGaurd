@@ -73,3 +73,15 @@
 - Reported size: 0.50 GB
 - Archive has been located but its internal contents have not yet been inspected.
 - Next action: inspect archive listing, image counts, metadata and manifest without extracting or using it for training.
+
+
+## Evaluation ZIP structure inspected (user, 2026-10-30)
+- Archive: `Copy of health-eval.zip`
+- Google Drive path: `/content/drive/MyDrive/Copy of health-eval.zip`
+- Reported size: 0.50 GB
+- Archive listing: 1,945 files total: 1,942 JPG images, 1 CSV, 1 Markdown, 1 JSON.
+- Image path prefix: `Health/eval/images/`
+- Metadata CSV path: `Health/eval/metadata.csv`
+- The metadata schema and label contents are not yet inspected.
+- Preserve this evaluation archive for the final independent evaluation only. Do not use its labels for training, architecture selection, hyperparameter tuning, threshold selection or calibration.
+- Next: inspect only the eval CSV schema, row count, missing values and label distribution; record the result, then keep the evaluation labels sealed until the model and decision policy are frozen.
