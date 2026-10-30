@@ -85,8 +85,6 @@ const AGENTS: AgentSpec[] = [
 
 const logoSrc = '/brand/dg-mark.svg';
 
-const logoSrc = '/brand/dg-mark.svg';
-
 function makePetalStyle(index: number): CSSProperties {
   const left = (index * 43 + (index % 5) * 11) % 100;
   const drift = ((index * 17) % 22) - 11;
