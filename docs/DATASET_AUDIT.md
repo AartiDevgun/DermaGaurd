@@ -100,3 +100,13 @@
 - Age missingness is irrelevant to the planned image-only classifier; do not use demographics in the initial model.
 - Evaluation set should remain untouched for all model training, architecture selection, hyperparameter tuning and confidence calibration. Use it once for final evaluation after model and decision rules are frozen.
 - Evaluation metrics for rare classes will have high sampling uncertainty (only 23 df and 27 vasc images); report per-class support and interpret results carefully.
+
+
+## Initial internal validation split created (reported by user, 2026-10-30)
+- Method: `StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)`
+- Images: train=6,227; validation=1,535 (approximately 80:20)
+- Unique lesion groups do not overlap: 0.
+- Train class counts: akiec=186, bcc=296, bkl=711, df=70, mel=690, nv=4,185, vasc=89.
+- Validation class counts: akiec=63, bcc=104, bkl=137, df=18, mel=166, nv=1,027, vasc=20.
+- Split saved by user to `/content/drive/MyDrive/DermaGuard/internal_split.csv`.
+- This first fold is valid but has some class-proportion differences due to lesion-group constraints. Compare all five candidate folds and select a deterministic fold with the smallest class-distribution deviation before freezing the internal validation split.
