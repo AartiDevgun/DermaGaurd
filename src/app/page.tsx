@@ -246,6 +246,9 @@ export default function HomePage() {
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
   const [savedPrompt, setSavedPrompt] = useState('');
+  const [contextAge, setContextAge] = useState('');
+  const [contextGender, setContextGender] = useState('');
+  const [contextLocation, setContextLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachResolver = useRef<((value?: string) => void) | null>(null);
 
@@ -398,44 +401,223 @@ export default function HomePage() {
             <span className="header-divider" />
             <span className="header-muted">SIX-AGENT SCREENING</span>
           </div>
-          <a className="header-link" href="#agent-system">Six-agent system <span aria-hidden="true">↗</span></a>
+          <a className="header-link" href="#image-review">Upload an image <span aria-hidden="true">↗</span></a>
         </header>
+
+        <section className="quote-section" aria-label="Prevention quote">
+          <p className="quote-overline">A PRINCIPLE WORTH REMEMBERING</p>
+          <blockquote>“An ounce of prevention is worth a <span>pound of cure.</span>”</blockquote>
+          <p className="quote-caption">— <strong>Benjamin Franklin</strong></p>
+        </section>
 
         <section className="hero-section" aria-labelledby="entry-title">
           <div className="hero-copy">
-            <p className="eyebrow"><span /> AGENTIC DERMA GUARD · LEVEL 2</p>
+            <p className="eyebrow"><span /> DERMA GUARD · IMAGE REVIEW</p>
             <h1 id="entry-title">
-              One image.
-              <span>Six agents.</span>
-              <span className="headline-blue">One reasoned decision.</span>
+              Start with the
+              <span>image.</span>
+              <span className="headline-blue">See the evidence.</span>
             </h1>
             <p className="hero-description">
-              DermaGuard brings image quality, classification, lesion features, patient context and safety checks into one traceable screening decision.
+              Upload a dermoscopic image to begin a structured review. The intended result brings together image quality, a seven-class prediction, lesion and context evidence, safety checks and one traceable triage action.
             </p>
             <div className="hero-actions">
-              <a className="primary-link" href="#agent-system">Explore the six agents <span aria-hidden="true">↓</span></a>
-              <span className="hero-note">7 LESION CLASSES <i /> 3 TRIAGE ACTIONS</span>
+              <a className="primary-link" href="#image-review">Upload an image <span aria-hidden="true">↓</span></a>
+              <span className="hero-note">7 LESION CLASSES <i /> 6 AGENTS <i /> 3 ACTIONS</span>
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="DermaGuard protective botanical shield emblem">
-            <div className="hero-visual__artwork">
-              <img src={logoSrc} alt="DermaGuard emblem showing a face protected by a botanical shield" />
+          <div className="hero-proof" aria-label="What the review is designed to provide">
+            <div className="hero-proof__row">
+              <span>01</span>
+              <div><strong>Image quality</strong><small>Clarity, focus and illumination</small></div>
             </div>
-            <div className="hero-visual__caption">
-              <span>IMAGE-LED RESEARCH</span>
-              <i />
-              <span>EXPLAINABLE TRIAGE</span>
+            <div className="hero-proof__row">
+              <span>02</span>
+              <div><strong>Model prediction</strong><small>Full seven-class distribution</small></div>
             </div>
-            <p className="hero-visual__note">A coordinated review, from image quality to final disposition.</p>
+            <div className="hero-proof__row">
+              <span>03</span>
+              <div><strong>Reasoned triage</strong><small>Evidence, safety and next step</small></div>
+            </div>
           </div>
         </section>
 
-        <section className="quote-section" aria-label="DermaGuard philosophy">
-          <p className="quote-overline">THE DECISION PRINCIPLE</p>
-          <blockquote>“A predicted class is only one part of <span>a safe next step.</span>”</blockquote>
-          <p className="quote-caption">Every image must leave the system with both a seven-class prediction and a documented triage action.</p>
+        <section className="review-section" id="image-review" aria-labelledby="review-title">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow"><span /> START YOUR IMAGE REVIEW</p>
+              <h2 id="review-title">Upload your image.<br /><em>Review the evidence.</em></h2>
+            </div>
+            <p className="section-intro">
+              Choose a clear, well-lit dermoscopic image. Once the six-agent API is connected, this workspace will return a lesion-class prediction, its supporting evidence and a separate triage action.
+            </p>
+          </div>
+
+          <div className="review-workspace">
+            <div className="review-workspace__top">
+              <div className="workspace-title">
+                <span className="workspace-mark">DG</span>
+                <div><strong>Image workspace</strong><span>Prepare an image for review</span></div>
+              </div>
+              <span className="local-badge"><i /> IMAGE PREVIEW · API PENDING</span>
+            </div>
+
+            {selectedFile && previewUrl ? (
+              <div className="selected-image">
+                <div className="selected-image__top">
+                  <div>
+                    <span className="micro-label">SELECTED IMAGE</span>
+                    <span className="selected-image__name">{selectedFile.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="clear-image"
+                    onClick={() => { setSelectedFile(null); setNotice(''); }}
+                  >Remove <span aria-hidden="true">×</span></button>
+                </div>
+                <div className="selected-image__preview">
+                  <img src={previewUrl} alt="Selected dermoscopic image preview" style={{ objectFit: imageFit as 'contain' | 'cover' }} />
+                </div>
+                <div className="selected-image__bottom">
+                  <span>{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                  <GlideSelect
+                    options={[
+                      { value: 'contain', label: 'Fit image', tag: 'NO CROP' },
+                      { value: 'cover', label: 'Fill frame', tag: 'CROP' }
+                    ]}
+                    value={imageFit}
+                    onChange={setImageFit}
+                    size="sm"
+                    radius={9}
+                    menuWidth={164}
+                    accentColor="#a8c7ff"
+                    surfaceColor="#101b32"
+                    highlightColor="#20395e"
+                    textColor="#eaf2ff"
+                    ariaLabel="Image preview fit"
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            <div className="composer-wrap">
+              <PromptBar
+                placeholder="Attach the dermoscopic image you want reviewed..."
+                sources={[{
+                  key: 'image',
+                  name: 'Image from device',
+                  description: 'Choose a dermoscopic image',
+                  icon: Attachment01Icon,
+                  attach: true
+                }]}
+                commands={[]}
+                models={[]}
+                efforts={[]}
+                width={760}
+                background="rgba(8, 17, 34, 0.94)"
+                color="#eef5ff"
+                menuBackground="#111f39"
+                sparkColor="#8db7ff"
+                sparkBoost={1.05}
+                radius={19}
+                onAttach={attachImage}
+                onSend={handleSend}
+              />
+              <input
+                ref={fileInputRef}
+                className="visually-hidden-file-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                onChange={handleImageChange}
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+              <div className="composer-meta">
+                <span>PNG · JPG · WEBP · UP TO 25 MB</span>
+                <span>File stays in this browser until API integration.</span>
+              </div>
+            </div>
+
+            <div className="context-fields">
+              <div className="context-fields__heading">
+                <span className="method-label">OPTIONAL PATIENT CONTEXT</span>
+                <span>Leave unknown fields blank — nothing is inferred.</span>
+              </div>
+              <div className="context-fields__grid">
+                <label>
+                  <span>Age</span>
+                  <input type="number" min="0" max="120" inputMode="numeric" placeholder="Not provided" value={contextAge} onChange={event => setContextAge(event.target.value)} />
+                </label>
+                <label>
+                  <span>Gender</span>
+                  <select value={contextGender} onChange={event => setContextGender(event.target.value)}>
+                    <option value="">Not provided</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
+                </label>
+                <label className="context-fields__location">
+                  <span>Lesion location</span>
+                  <input type="text" maxLength={100} placeholder="e.g. upper back (optional)" value={contextLocation} onChange={event => setContextLocation(event.target.value)} />
+                </label>
+              </div>
+            </div>
+
+            <div className="result-contract">
+              <div className="result-contract__heading">
+                <span className="method-label">YOUR REVIEW RESULT</span>
+                <span className="result-contract__status"><i /> WAITING FOR MODEL API</span>
+              </div>
+              <div className="result-contract__primary">
+                <div>
+                  <span>PREDICTED CLASS</span>
+                  <strong>—</strong>
+                  <small>One of seven lesion classes</small>
+                </div>
+                <div>
+                  <span>TRIAGE DECISION</span>
+                  <strong>—</strong>
+                  <small>AUTO-TRIAGE · REFER · RE-IMAGE</small>
+                </div>
+              </div>
+              <div className="result-contract__evidence">
+                <span>QUALITY SCORE</span>
+                <span>LESION FEATURE EVIDENCE</span>
+                <span>CONTEXT FLAGS</span>
+                <span>SAFETY VETO</span>
+                <span>COORDINATOR RATIONALE</span>
+              </div>
+              <p>These fields will populate from the six-agent response. No prediction or confidence score is fabricated in this preview.</p>
+              <button type="button" disabled title="Available after the six-agent API is connected">Run six-agent review <span>Backend integration pending</span></button>
+            </div>
+
+            <div className="local-file-state">
+              <CallChip
+                name="IMAGE"
+                argument={selectedFile ? 'ready in browser' : 'awaiting image'}
+                status="idle"
+                size={31}
+                radius={9}
+                color="#dceaff"
+                surfaceColor="rgba(12, 27, 49, 0.9)"
+                showTimer={false}
+                progressColor="#83b5ff"
+              />
+            </div>
+
+            {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
+            {savedPrompt ? <p className="saved-prompt">NOTE <span>{savedPrompt}</span></p> : null}
+            <div className="review-footnote">
+              <span className="footnote-star" aria-hidden="true">✳</span>
+              <span>For research and educational use. This experience is not a medical diagnosis or a substitute for professional care.</span>
+            </div>
+          </div>
         </section>
+
+
 
         <section className="agent-system" id="agent-system" aria-labelledby="agent-system-title">
           <div className="agent-system__heading">
@@ -541,125 +723,6 @@ export default function HomePage() {
             </article>
           </div>
           <p className="triage-policy__note">A2 must still return a seven-class prediction for every image, including RE-IMAGE and REFER cases. These are prototype decision rules, not clinically validated thresholds.</p>
-        </section>
-
-        <section className="review-section" id="image-review" aria-labelledby="review-title">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow"><span /> THE IMAGE REVIEW</p>
-              <h2 id="review-title">Start with what<br /><em>you can see.</em></h2>
-            </div>
-            <p className="section-intro">
-              Add a dermoscopic image to prepare a local preview. The current research build does not send images to a server or run model inference.
-            </p>
-          </div>
-
-          <div className="review-workspace">
-            <div className="review-workspace__top">
-              <div className="workspace-title">
-                <span className="workspace-mark">DG</span>
-                <div><strong>Image workspace</strong><span>Prepare an image for review</span></div>
-              </div>
-              <span className="local-badge"><i /> LOCAL PREVIEW</span>
-            </div>
-
-            {selectedFile && previewUrl ? (
-              <div className="selected-image">
-                <div className="selected-image__top">
-                  <div>
-                    <span className="micro-label">SELECTED IMAGE</span>
-                    <span className="selected-image__name">{selectedFile.name}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="clear-image"
-                    onClick={() => { setSelectedFile(null); setNotice(''); }}
-                  >Remove <span aria-hidden="true">×</span></button>
-                </div>
-                <div className="selected-image__preview">
-                  <img src={previewUrl} alt="Selected dermoscopic image preview" style={{ objectFit: imageFit as 'contain' | 'cover' }} />
-                </div>
-                <div className="selected-image__bottom">
-                  <span>{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</span>
-                  <GlideSelect
-                    options={[
-                      { value: 'contain', label: 'Fit image', tag: 'NO CROP' },
-                      { value: 'cover', label: 'Fill frame', tag: 'CROP' }
-                    ]}
-                    value={imageFit}
-                    onChange={setImageFit}
-                    size="sm"
-                    radius={9}
-                    menuWidth={164}
-                    accentColor="#a8c7ff"
-                    surfaceColor="#101b32"
-                    highlightColor="#20395e"
-                    textColor="#eaf2ff"
-                    ariaLabel="Image preview fit"
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            <div className="composer-wrap">
-              <PromptBar
-                placeholder="Add a dermoscopic image or leave a note..."
-                sources={[{
-                  key: 'image',
-                  name: 'Image from device',
-                  description: 'Choose a dermoscopic image',
-                  icon: Attachment01Icon,
-                  attach: true
-                }]}
-                commands={[]}
-                models={[]}
-                efforts={[]}
-                width={760}
-                background="rgba(8, 17, 34, 0.94)"
-                color="#eef5ff"
-                menuBackground="#111f39"
-                sparkColor="#8db7ff"
-                sparkBoost={1.05}
-                radius={19}
-                onAttach={attachImage}
-                onSend={handleSend}
-              />
-              <input
-                ref={fileInputRef}
-                className="visually-hidden-file-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/avif"
-                onChange={handleImageChange}
-                tabIndex={-1}
-                aria-hidden="true"
-              />
-              <div className="composer-meta">
-                <span>PNG · JPG · WEBP · UP TO 25 MB</span>
-                <span>Nothing is uploaded in this preview.</span>
-              </div>
-            </div>
-
-            <div className="local-file-state">
-              <CallChip
-                name="IMAGE"
-                argument={selectedFile ? 'ready in browser' : 'awaiting image'}
-                status="idle"
-                size={31}
-                radius={9}
-                color="#dceaff"
-                surfaceColor="rgba(12, 27, 49, 0.9)"
-                showTimer={false}
-                progressColor="#83b5ff"
-              />
-            </div>
-
-            {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
-            {savedPrompt ? <p className="saved-prompt">NOTE <span>{savedPrompt}</span></p> : null}
-            <div className="review-footnote">
-              <span className="footnote-star" aria-hidden="true">✳</span>
-              <span>For research and educational use. This experience is not a medical diagnosis or a substitute for professional care.</span>
-            </div>
-          </div>
         </section>
 
         <section className="submission-section" id="hidden-test" aria-labelledby="submission-title">
