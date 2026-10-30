@@ -64,3 +64,14 @@ Use ImageNet pretrained weights as initialisation if download/terms permit. Pret
 3. Run controlled short training experiments on train split; monitor validation macro F1 / balanced accuracy and per-class recall.
 4. Select candidate, train with best validation checkpoint and calibrate using validation only.
 5. Freeze model and decision policy, then run official evaluation once.
+
+
+## Aspect-ratio-preserving preprocessing smoke test passed (reported by user, 2026-10-30)
+- Replaced direct square stretch resize with aspect-ratio-preserving resize and centered padding (letterboxing) to 224x224.
+- Training-only augmentations: horizontal/vertical flips, mild rotation and mild brightness/contrast jitter.
+- Validation: deterministic resize/pad, tensor conversion and ImageNet normalization only.
+- Smoke test passed: image batch [32, 3, 224, 224], label batch [32], CUDA device `cuda:0`.
+- Dataset lengths: train=6,208; validation=1,554.
+- Class mapping confirmed: akiec=0, bcc=1, bkl=2, df=3, mel=4, nv=5, vasc=6.
+- Important: keep the exact same resize/pad and normalization in inference preprocessing. Preserve the original image for all diagnostic inference.
+- Next: inspect torchvision pretrained architecture compatibility and benchmark model parameter count, GPU memory and inference latency before selecting training candidates.
