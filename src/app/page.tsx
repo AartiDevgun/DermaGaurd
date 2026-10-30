@@ -396,11 +396,12 @@ export default function HomePage() {
   useEffect(() => {
     if (!selectedFile) {
       setPreviewUrl(null);
+      setIsProcessing(false);
+      setProcessingStage('');
       return;
     }
     const url = URL.createObjectURL(selectedFile);
     setPreviewUrl(url);
-    setImageStatus('done');
     return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
@@ -519,6 +520,8 @@ export default function HomePage() {
     setDiagnosisResult(null);
     setSelectedFile(file);
     setImageStatus('running');
+    setIsProcessing(true);
+    setProcessingStage('preparing image');
     setNotice('');
     finishAttachment(file.name);
     input.value = '';
@@ -678,6 +681,8 @@ export default function HomePage() {
                       setQualityResult(null);
                       setDiagnosisResult(null);
                       setImageStatus('idle');
+                      setIsProcessing(false);
+                      setProcessingStage('');
                       setNotice('');
                     }}
                   >Remove <span aria-hidden="true">×</span></button>
@@ -687,9 +692,15 @@ export default function HomePage() {
                     src={previewUrl}
                     alt="Selected dermoscopic image preview"
                     style={{ objectFit: imageFit as 'contain' | 'cover' }}
-                    onLoad={() => setImageStatus('done')}
+                    onLoad={() => {
+                      setImageStatus('done');
+                      setIsProcessing(false);
+                      setProcessingStage('');
+                    }}
                     onError={() => {
                       setImageStatus('error');
+                      setIsProcessing(false);
+                      setProcessingStage('');
                       setNotice('This image could not be previewed by your browser. Try a different supported image.');
                     }}
                   />
