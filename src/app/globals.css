@@ -2014,3 +2014,37 @@ html, body { background: #1a222d; }
   .result-preview { padding: 14px 10px; }
   .result-preview__columns { gap: 10px; }
 }
+
+
+/* Keep the restored composition compact so image upload stays close to the top. */
+.quote-section {
+  margin: 8px 0 38px;
+  padding: 46px 20px 48px;
+}
+.quote-section .quote-overline { margin-bottom: 14px; }
+.quote-section blockquote {
+  max-width: 920px;
+  font-size: clamp(37px, 4.9vw, 64px);
+  line-height: 1.06;
+}
+.quote-section .quote-caption { margin-top: 12px; }
+.hero-section {
+  min-height: 0;
+  padding: 42px 0 48px;
+}
+.hero-visual { min-height: 410px; }
+.hero-visual__artwork img { max-height: 375px; }
+.review-section { padding: 6px 0 92px; }
+.section-heading { margin-bottom: 26px; }
+@media (max-width: 900px) {
+  .hero-visual { min-height: 360px; }
+  .hero-visual__artwork img { max-height: 335px; }
+}
+@media (max-width: 680px) {
+  .quote-section { margin: 5px 0 23px; padding: 34px 7px 36px; }
+  .quote-section blockquote { font-size: clamp(32px, 8.7vw, 46px); }
+  .hero-section { padding: 26px 0 32px; }
+  .hero-visual { min-height: 0; }
+  .hero-visual__artwork img { max-height: 320px; }
+  .review-section { padding: 4px 0 72px; }
+}
