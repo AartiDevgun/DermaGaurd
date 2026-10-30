@@ -126,3 +126,12 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Added dependency entries for user-provided components: `ogl`, `motion`, `@hugeicons/react`, and `@hugeicons/core-free-icons`.
 - BranchedMenu and RefineFrame are excluded. PeekRating remains included. JellyRadio source is received but its purpose/placement remains undecided.
 - The landing page is informational only: it does not yet accept images, call either agent, or claim to return model predictions.
+
+
+
+## Vercel production deployment (2026-10-30)
+- Initial frontend deployed successfully: `https://dermaguard.vercel.app`.
+- Vercel project `dermaguard` is linked to `AartiDevgun/DermaGaurd` on `main`.
+- Deployment state reported by Vercel: READY.
+- Production deployment is not SSO/password/IP protected; previews remain SSO protected.
+- The deployed page is an informational shell. It is not the live screening workflow and must not display simulated classifications.
