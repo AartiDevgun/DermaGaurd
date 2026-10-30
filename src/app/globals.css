@@ -2576,3 +2576,364 @@ html, body {
   .context-fields__grid { grid-template-columns: 1fr; }
   .context-fields__location { grid-column: auto; }
 }
+
+
+/* High-contrast blue palette + site-wide readable supporting text. */
+:root {
+  --blue-night: #061522;
+  --blue-cerulean: #07527d;
+  --blue-aqua: #39c9df;
+  --blue-cyan: #39bff4;
+  --blue-sky: #78ccf5;
+  --blue-light: #b7e3ff;
+  --blue-ice: #e1f4ff;
+  --text-readable: #d4e7f7;
+  --text-secondary: #bad5eb;
+  --text-muted-readable: #a5c3de;
+}
+
+.dermaguard-app {
+  color: var(--text-readable);
+}
+
+/* Body copy should never fall back to the old tiny, low-contrast treatment. */
+.dermaguard-app p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.75;
+}
+.dermaguard-app small {
+  color: var(--text-muted-readable);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.dermaguard-app input,
+.dermaguard-app select,
+.dermaguard-app textarea {
+  color: var(--blue-ice);
+  font-size: 15px;
+}
+.dermaguard-app input::placeholder,
+.dermaguard-app textarea::placeholder {
+  color: #91b1ca;
+  opacity: 1;
+}
+
+/* Navigation, section labels and metadata. */
+.header-context,
+.header-muted,
+.header-link,
+.hero-note,
+.local-badge,
+.composer-meta,
+.micro-label,
+.selected-image__name,
+.clear-image,
+.selected-image__bottom,
+.workflow-notice,
+.review-footnote,
+.approach-number,
+.approach-tag,
+.approach-note,
+.site-footer,
+.footer-disclaimer,
+.moon-launcher__label,
+.moon-panel__identity small,
+.moon-message,
+.moon-compose input,
+.moon-disclaimer,
+.processing-caption,
+.method-label,
+.method-step-index,
+.method-note,
+.method-tag,
+.method-visual__eyebrow,
+.method-visual__foot,
+.class-flip-front small,
+.class-flip-back p,
+.method-feedback__caption,
+.hero-visual__caption,
+.agent-detail__meta,
+.agent-detail__outputs li code,
+.agent-detail__guardrail,
+.trace-example__badge,
+.trace-row--header,
+.trace-row strong,
+.trace-row > span,
+.trace-status,
+.trace-example__foot,
+.triage-rule__number,
+.triage-policy__note,
+.submission-time,
+.csv-download,
+.csv-columns code,
+.csv-columns span,
+.csv-schema__note,
+.evaluation-report__pending,
+.evaluation-metrics span,
+.submission-section__foot {
+  color: var(--text-muted-readable);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Let reading copy breathe, with a brighter blue-white contrast. */
+.hero-description,
+.section-intro,
+.approach-card p,
+.method-heading > p,
+.method-copy > p,
+.agent-system__heading > p,
+.agent-detail > p,
+.triage-policy__heading > p:last-child,
+.triage-rule p,
+.submission-section__intro > p:last-child,
+.result-preview > p,
+.quote-caption {
+  color: var(--text-readable);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.eyebrow,
+.quote-overline,
+.method-label,
+.micro-label,
+.upload-card__eyebrow,
+.context-fields__title .micro-label {
+  color: var(--blue-aqua);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+
+.hero-note,
+.header-context,
+.local-badge,
+.composer-meta,
+.approach-tag,
+.approach-note,
+.footer-disclaimer,
+.trace-example__badge,
+.trace-row--header,
+.submission-time,
+.csv-schema__note,
+.evaluation-report__pending,
+.submission-section__foot {
+  color: #aacce6;
+}
+
+.workspace-title span:not(.workspace-mark),
+.context-fields__heading > span:last-child,
+.upload-card__privacy {
+  color: #b0cbe2;
+  font-size: 13px;
+}
+
+.approach-card p,
+.agent-system__heading > p,
+.agent-detail > p,
+.method-heading > p,
+.method-copy > p,
+.triage-rule p,
+.submission-section__intro > p:last-child {
+  color: #c5dced;
+}
+
+.moon-message {
+  color: #e0f0fc;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.moon-panel__identity small,
+.moon-disclaimer {
+  color: #b5d1e8;
+  font-size: 13px;
+}
+.moon-compose input { font-size: 14px; }
+.moon-compose input::placeholder { color: #a4c3dc; opacity: 1; }
+
+.review-footnote,
+.footer-disclaimer,
+.approach-note,
+.trace-example__foot,
+.triage-policy__note,
+.csv-schema__note,
+.submission-section__foot {
+  color: #b0cbe2;
+}
+
+/* Distinct cerulean -> aqua -> cyan -> light-blue accents on black. */
+.header-orbit,
+.footnote-star,
+.primary-link span,
+.hero-note i,
+.local-badge i {
+  color: var(--blue-cyan);
+}
+.header-orbit i,
+.hero-note i,
+.local-badge i {
+  background: var(--blue-aqua);
+  box-shadow: 0 0 11px rgba(57, 201, 223, .72);
+}
+.eyebrow > span,
+.quote-section::before,
+.quote-section::after,
+.agent-system__explorer,
+.site-footer {
+  border-color: rgba(57, 191, 244, .24);
+}
+.hero-copy h1 .headline-blue,
+.quote-section blockquote span {
+  background: linear-gradient(105deg, var(--blue-aqua) 0%, var(--blue-cyan) 42%, var(--blue-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.primary-link {
+  border-color: rgba(57, 191, 244, .48);
+  background: linear-gradient(110deg, rgba(7, 82, 125, .45), rgba(35, 160, 197, .19), rgba(57, 191, 244, .12));
+}
+.primary-link:hover {
+  border-color: rgba(120, 204, 245, .8);
+  background: linear-gradient(110deg, rgba(7, 82, 125, .62), rgba(57, 201, 223, .26), rgba(57, 191, 244, .2));
+}
+.brand-wordmark {
+  background-image: linear-gradient(100deg, #f2f9ff 0%, var(--blue-light) 45%, var(--blue-aqua) 100%);
+}
+.hero-visual__caption i { background: var(--blue-cyan); }
+.footnote-star { color: var(--blue-aqua); }
+
+.upload-card {
+  border-color: rgba(57, 191, 244, .42);
+  background:
+    radial-gradient(circle at 5% 50%, rgba(7, 82, 125, .32), transparent 29%),
+    radial-gradient(circle at 95% 5%, rgba(57, 201, 223, .12), transparent 34%),
+    linear-gradient(125deg, rgba(6, 21, 34, .94), rgba(7, 30, 49, .78));
+}
+.upload-card__visual {
+  border-color: rgba(57, 201, 223, .56);
+  color: var(--blue-light);
+  background: radial-gradient(circle, rgba(57, 201, 223, .2), rgba(7, 82, 125, .16) 72%);
+  box-shadow: 0 0 30px rgba(57, 191, 244, .08);
+}
+.upload-card__visual::before { border-color: rgba(120, 204, 245, .25); }
+.upload-card__spark { color: var(--blue-aqua); }
+.upload-card__eyebrow { color: var(--blue-aqua); }
+.upload-card__copy h3 { color: var(--blue-ice); }
+.upload-card__copy p { color: #c5dced; }
+.upload-card__formats { color: #b1cde4; }
+.upload-card__button {
+  border-color: rgba(120, 204, 245, .55);
+  color: var(--blue-ice);
+  background: linear-gradient(115deg, rgba(7, 82, 125, .58), rgba(57, 191, 244, .18));
+}
+.upload-card__button > span { color: var(--blue-aqua); }
+.upload-card__button:hover {
+  border-color: var(--blue-light);
+  background: linear-gradient(115deg, rgba(7, 82, 125, .74), rgba(57, 201, 223, .3));
+}
+.upload-card__privacy { color: #b7d2e8; }
+
+.context-fields {
+  border-top-color: rgba(57, 191, 244, .32);
+  border-bottom-color: rgba(57, 191, 244, .32);
+}
+.context-fields__title p { color: var(--blue-ice); }
+.context-fields__grid label > span { color: #d3e8f8; }
+.context-fields__grid input,
+.context-fields__grid select {
+  border-bottom-color: rgba(120, 204, 245, .48);
+  color: var(--blue-ice);
+}
+.context-fields__grid input:focus,
+.context-fields__grid select:focus {
+  border-bottom-color: var(--blue-aqua);
+  background: rgba(57, 201, 223, .055);
+}
+.context-fields__grid input::placeholder { color: #9abbd5; }
+
+.approach-card,
+.method-main,
+.method-side,
+.review-workspace {
+  border-color: rgba(57, 191, 244, .2);
+}
+.approach-symbol,
+.workspace-mark,
+.moon-panel {
+  border-color: rgba(57, 201, 223, .28);
+}
+.approach-number,
+.approach-tag,
+.method-step-index,
+.agent-detail__meta,
+.trace-status,
+.triage-rule__number,
+.submission-time {
+  color: var(--blue-sky);
+}
+.approach-card h3,
+.agent-detail h3,
+.trace-example__heading h3,
+.triage-rule h3 {
+  color: var(--blue-ice);
+}
+.approach-card:hover {
+  border-color: rgba(57, 191, 244, .52);
+  background: linear-gradient(145deg, rgba(7, 82, 125, .24), rgba(5, 15, 29, .78));
+}
+.agent-system__explorer,
+.triage-policy,
+.submission-section,
+.csv-schema {
+  border-color: rgba(57, 191, 244, .23);
+}
+.agent-system__selector .jelly-radio__skin {
+  border-color: rgba(57, 191, 244, .25);
+  background: rgba(7, 46, 72, .78);
+}
+.agent-system__selector .jelly-radio__chip[data-on='true'] .jelly-radio__skin {
+  background: linear-gradient(110deg, var(--blue-aqua), var(--blue-light));
+  color: #031521;
+}
+.agent-detail__outputs li code {
+  border-color: rgba(57, 191, 244, .26);
+  color: #d9f1ff;
+  background: rgba(7, 82, 125, .22);
+}
+.trace-status--pass { color: var(--blue-aqua); }
+.trace-status--caution { color: var(--blue-sky); }
+.trace-status--flag { color: #91cfff; }
+.trace-status--refer { color: var(--blue-light); }
+.triage-rule--reimage h3 { color: var(--blue-light); }
+.triage-rule--refer h3 { color: var(--blue-cyan); }
+.triage-rule--auto h3 { color: var(--blue-aqua); }
+.csv-download {
+  border-color: rgba(57, 191, 244, .36);
+  color: var(--blue-ice);
+  background: rgba(7, 82, 125, .28);
+}
+.csv-download:hover {
+  border-color: var(--blue-aqua);
+  background: rgba(7, 82, 125, .48);
+}
+
+@media (max-width: 680px) {
+  .dermaguard-app p { font-size: 14px; }
+  .header-context,
+  .hero-note,
+  .local-badge,
+  .composer-meta,
+  .micro-label,
+  .method-label,
+  .approach-tag,
+  .footer-disclaimer,
+  .trace-example__badge,
+  .submission-time {
+    font-size: 12px;
+  }
+  .moon-message { font-size: 14px; }
+  .context-fields__grid label > span,
+  .context-fields__grid input,
+  .context-fields__grid select { font-size: 14px; }
+}
