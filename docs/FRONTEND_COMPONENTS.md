@@ -16,16 +16,16 @@ The user decides the exact component placements. Do not substitute or introduce 
 
 | Component | Intended role / placement | Source intake |
 |---|---|---|
-| ElectricLogo | Brand mark / landing identity | TSX and CSS received |
-| FlipCard | Image clarity score front; quality reasons on reverse | Awaiting source |
-| BranchedMenu | Awaiting user placement instructions | Awaiting source |
-| CallChip | Upload progress / call status | Awaiting source |
-| GlideSelect | Image/file selection control (user called it “glide select”) | Awaiting source |
-| JellyRadio | Awaiting user placement instructions | Awaiting source |
-| LatticeLoader | Image Quality Agent processing state | Awaiting source |
-| PeekRating | Post-result user feedback | Awaiting source |
-| LightTunnel | Quality analysis background; falling shards must be hidden while active | Awaiting source |
-| RefineFrame | Awaiting user placement instructions | Awaiting source |
+| ElectricLogo | Brand identity mark | TSX and CSS received |
+| FlipCard | Image clarity score front; quality reasons on reverse | TSX and CSS received |
+| BranchedMenu | Excluded by user | Not included |
+| CallChip | Real upload / request progress and state | TSX and CSS received |
+| GlideSelect | Adjacent predefined selection control; not the file picker itself | TSX and CSS received |
+| JellyRadio | Placement undecided by user | TSX and CSS received |
+| LatticeLoader | Image Quality Agent processing state | TSX and CSS received |
+| PeekRating | Optional post-result UX feedback | TSX and CSS received |
+| LightTunnel | Quality analysis background; falling shards hidden while active | TSX and CSS received |
+| RefineFrame | Excluded by user | Not included |
 
 ## ElectricLogo details received
 - Component: `ElectricLogo.tsx`
@@ -117,3 +117,12 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Runtime dependency: motion (imports from motion/react).
 - Component placement and option set have not yet been specified by the user; do not assign it a product role or invent options before confirming the relevant screen flow.
 - Integration is deferred until the app scaffold is ready.
+
+
+## Initial frontend scaffold committed (2026-10-30)
+- Added a Next.js 16.4.3 App Router project with React 19.3 and TypeScript under `src/app`.
+- Added the first responsive landing screen and visual foundation, using the approved black / electric blue / indigo / violet palette.
+- Added ambient falling shards and a CSS switch hook: hide `.shard-field` whenever the page/body is marked `data-light-tunnel-active="true"`.
+- Added dependency entries for user-provided components: `ogl`, `motion`, `@hugeicons/react`, and `@hugeicons/core-free-icons`.
+- BranchedMenu and RefineFrame are excluded. PeekRating remains included. JellyRadio source is received but its purpose/placement remains undecided.
+- The landing page is informational only: it does not yet accept images, call either agent, or claim to return model predictions.

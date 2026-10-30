@@ -37,6 +37,12 @@ Build a polished, public, browser-accessible hackathon website backed by a genui
 - Prefer free/open-source APIs and services; do not use paid AI inference APIs. Be transparent that free hosting and GPU compute are not unlimited or guaranteed.
 - No frontend component integration until the user gives placement instructions.
 
+## Frontend scaffold update (2026-10-30)
+- Initial deployable Next.js App Router scaffold has been committed under `src/app`.
+- Stack: Next.js 16.4.3, React 19.3.0, TypeScript 5.9+.
+- First landing page is informational and does not yet contain a functioning upload or analysis request.
+- Vercel project creation is the next deployment step after verifying the scaffold's build; do not present the landing page as the finished screening system.
+
 ## Repository and connected services
 - GitHub repository: AartiDevgun/DermaGaurd
 - Default branch: main
