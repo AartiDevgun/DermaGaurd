@@ -109,3 +109,11 @@ The user decides the exact component placements. Do not substitute or introduce 
 ## RefineFrame (excluded by user, 2026-10-30)
 - User explicitly decided RefineFrame will not be included in DermaGuard.
 - Do not request, integrate, render, or install dependencies solely for RefineFrame unless the user later changes this decision.
+
+
+## JellyRadio source received (2026-10-30)
+- User supplied JellyRadio.tsx and JellyRadio.css.
+- Supports controlled/uncontrolled single selection, custom labels/icons, sm/md/lg sizing, disabled options, keyboard navigation, and reduced-motion behavior.
+- Runtime dependency: motion (imports from motion/react).
+- Component placement and option set have not yet been specified by the user; do not assign it a product role or invent options before confirming the relevant screen flow.
+- Integration is deferred until the app scaffold is ready.
