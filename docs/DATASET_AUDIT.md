@@ -123,3 +123,14 @@
 - Split saved by user at `/content/drive/MyDrive/DermaGuard/internal_split.csv`.
 - This split is now frozen for model comparison. Do not reshuffle it based on validation performance.
 - Keep the separate official evaluation archive sealed until model selection, calibration and decision thresholds are frozen.
+
+
+## Colab hardware preflight (reported by user, 2026-10-30)
+- Python: 3.13.18
+- PyTorch: 2.11.0+cpu
+- CUDA available: false
+- Assigned GPU: none
+- Colab disk: 107.72 GB total, 105.74 GB free
+- Status: training has not started.
+- Action: user is switching Colab runtime to T4 GPU if available. Re-run the hardware preflight after runtime restart; confirm CUDA is available and GPU model is visible before installing model dependencies or extracting data.
+- Note: Colab GPU availability is quota/availability dependent; do not assume a T4 will always be granted.
