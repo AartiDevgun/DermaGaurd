@@ -3538,3 +3538,62 @@ html, body {
   .processing-screen__steps li { font-size: 14px; }
   .result-preview__decision { align-items: flex-start; flex-direction: column; gap: 8px; }
 }
+
+
+/* Pill geometry for every interactive control across the DermaGuard site. */
+.dermaguard-app button,
+.dermaguard-app [role="button"] {
+  border-radius: 999px !important;
+}
+.dermaguard-app .primary-link {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.dermaguard-app .header-link {
+  padding: 7px 15px;
+  border: 1px solid rgba(57, 191, 244, .3);
+  border-radius: 999px !important;
+  color: #d2e8f6;
+  background: rgba(7, 38, 59, .38);
+  font: inherit;
+  font-size: 14px !important;
+  cursor: pointer;
+}
+.dermaguard-app .header-link:hover {
+  border-color: rgba(112, 217, 232, .72);
+  color: #effaff;
+  background: rgba(7, 82, 125, .36);
+}
+.dermaguard-app .choose-image-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 19px;
+  border: 1px solid rgba(57, 201, 223, .62);
+  border-radius: 999px !important;
+  color: #e1f4ff;
+  background: linear-gradient(110deg, rgba(7, 82, 125, .9), rgba(15, 67, 94, .94));
+  box-shadow: inset 0 1px rgba(225, 245, 255, .1), 0 8px 24px rgba(0, 0, 0, .2);
+  font-size: 15px !important;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+.dermaguard-app .choose-image-button:hover {
+  transform: translateY(-1px);
+  border-color: #9cecf4;
+  background: linear-gradient(110deg, rgba(8, 111, 155, .96), rgba(20, 87, 121, .98));
+}
+@media (max-width: 680px) {
+  .dermaguard-app .upload-format-row {
+    flex-wrap: wrap;
+  }
+  .dermaguard-app .choose-image-button {
+    width: 100%;
+  }
+}
