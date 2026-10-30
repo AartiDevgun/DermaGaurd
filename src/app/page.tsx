@@ -9,6 +9,7 @@ import LatticeLoader from '@/components/react-bits/LatticeLoader';
 import LightTunnel from '@/components/react-bits/LightTunnel';
 import FlipCard from '@/components/react-bits/FlipCard';
 import PeekRating from '@/components/react-bits/PeekRating';
+import JellyRadio from '@/components/react-bits/JellyRadio';
 import { Attachment01Icon } from '@hugeicons/core-free-icons';
 
 type QualityResult = {
@@ -18,6 +19,31 @@ type QualityResult = {
 };
 
 type ChatMessage = { role: 'user' | 'assistant'; text: string };
+type ReviewStage = 'quality' | 'classification' | 'triage';
+
+const STAGE_DETAILS: Record<ReviewStage, { number: string; title: string; description: string; note: string; tag: string }> = {
+  quality: {
+    number: '01 / 03',
+    title: 'Image quality, first.',
+    description: 'The first agent checks focus, illumination, glare and obstruction. An image that does not meet the quality threshold should be captured again rather than pushed forward.',
+    note: 'The original image remains unchanged for the classifier.',
+    tag: 'IMAGE QUALITY AGENT'
+  },
+  classification: {
+    number: '02 / 03',
+    title: 'Evidence in the full distribution.',
+    description: 'The diagnosis research agent evaluates the accepted image across all seven HAM10000 lesion classes. The interface is designed to show the complete score distribution, not only one label.',
+    note: 'Model scores are research outputs, not a confirmed medical diagnosis.',
+    tag: 'DIAGNOSIS AGENT'
+  },
+  triage: {
+    number: '03 / 03',
+    title: 'A cautious next step.',
+    description: 'The decision layer combines image usability and classification evidence into one explainable route: AUTO_TRIAGE, REFER or RE_IMAGE.',
+    note: 'This prototype is not a validated clinical pathway.',
+    tag: 'DECISION LAYER'
+  }
+};
 
 const logoSrc = '/brand/dg-mark.svg';
 
@@ -26,8 +52,8 @@ function makePetalStyle(index: number): CSSProperties {
   const drift = ((index * 17) % 22) - 11;
   const duration = 30 + ((index * 13) % 27);
   const delay = -((index * 7) % 46);
-  const size = 6 + ((index * 5) % 6);
-  const opacity = 0.13 + ((index * 3) % 12) / 100;
+  const size = 4 + ((index * 3) % 5);
+  const opacity = 0.11 + ((index * 3) % 10) / 100;
   return {
     '--petal-x': left + '%',
     '--petal-drift': drift + 'vw',
@@ -43,9 +69,9 @@ function makeCrystalStyle(index: number): CSSProperties {
   const drift = ((index * 23) % 27) - 13;
   const duration = 25 + ((index * 11) % 25);
   const delay = -((index * 9) % 43);
-  const size = 4 + ((index * 5) % 6);
+  const size = 3 + ((index * 3) % 4);
   const hue = 190 + ((index * 17) % 38);
-  const opacity = 0.15 + ((index * 4) % 14) / 100;
+  const opacity = 0.12 + ((index * 3) % 11) / 100;
   return {
     '--crystal-x': left + '%',
     '--crystal-drift': drift + 'vw',
@@ -234,14 +260,15 @@ export default function HomePage() {
   };
 
   const isQualityRunning = qualityState === 'running';
+  const activeStageDetails = STAGE_DETAILS[activeStage];
 
   return (
     <main className={'dermaguard-app' + (workspaceVisible ? ' dermaguard-app--revealed' : '')}>
       <div className="petal-field" aria-hidden="true">
-        {Array.from({ length: 20 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
+        {Array.from({ length: 14 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
       </div>
       <div className="crystal-field" aria-hidden="true">
-        {Array.from({ length: 24 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+        {Array.from({ length: 18 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
       </div>
       <div className="ambient-glow" aria-hidden="true" />
 
@@ -335,6 +362,140 @@ export default function HomePage() {
           <p className="quote-overline">THE PRINCIPLE</p>
           <blockquote>“Good decisions begin with <span>good information.</span>”</blockquote>
           <p className="quote-caption">Clarity is not the conclusion. It is where a more careful process begins.</p>
+        </section>
+
+        <section className="method-section" aria-labelledby="method-title">
+          <div className="method-heading">
+            <div>
+              <p className="eyebrow"><span /> THE REVIEW FRAMEWORK</p>
+              <h2 id="method-title">Three layers.<br /><em>One careful view.</em></h2>
+            </div>
+            <p>Explore how each part of the planned multi-agent workflow contributes to a more explainable image review.</p>
+          </div>
+
+          <div className="method-shell">
+            <div className="method-main">
+              <div className="method-selector">
+                <span className="method-label">EXPLORE A STAGE</span>
+                <JellyRadio
+                  items={[
+                    { value: 'quality', label: 'Image quality' },
+                    { value: 'classification', label: 'Classification' },
+                    { value: 'triage', label: 'Next step' }
+                  ]}
+                  value={activeStage}
+                  onChange={value => setActiveStage(value as ReviewStage)}
+                  chipColor="rgba(28, 48, 76, .8)"
+                  activeColor="#d6e8ff"
+                  textColor="#b9cce5"
+                  activeTextColor="#10213a"
+                  size="sm"
+                  gap={6}
+                  radius={9}
+                  swell={0.12}
+                  barge={4}
+                  ariaLabel="Review stage"
+                />
+              </div>
+
+              <div className="method-copy" aria-live="polite">
+                <span className="method-step-index">{activeStageDetails.number}</span>
+                <h3>{activeStageDetails.title}</h3>
+                <p>{activeStageDetails.description}</p>
+                <p className="method-note">{activeStageDetails.note}</p>
+                <span className="method-tag">{activeStageDetails.tag}</span>
+              </div>
+
+              <div className="method-visual">
+                <div className="method-visual__tunnel">
+                  <LightTunnel
+                    cableColor="#9fc8ff"
+                    pulseColor="#d6e8ff"
+                    tunnelColor="#37669f"
+                    tunnelOpacity={0.09}
+                    speed={0.08}
+                    pulseSpeed={1.2}
+                    cableCount={34}
+                    thickness={0.55}
+                    glow={0.45}
+                    brightness={0.7}
+                    mouseInteraction={false}
+                    clickSurge={false}
+                    intro={false}
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="method-visual__content">
+                  <span className="method-visual__eyebrow">AGENT SEQUENCE · VISUAL PREVIEW</span>
+                  <LatticeLoader
+                    label="Workflow architecture"
+                    status="working"
+                    pattern="orbit"
+                    grid={3}
+                    color="#c4ddff"
+                    glow={false}
+                    showTimer={false}
+                    fontSize={10}
+                    cellSize={8}
+                  />
+                  <span className="method-visual__foot">Illustrative animation only. No image analysis is running.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside className="method-side">
+              <div className="method-side__card">
+                <span className="method-label">THE MODEL'S LABEL SET</span>
+                <FlipCard
+                  width={300}
+                  height={208}
+                  radius={18}
+                  background="linear-gradient(145deg, rgba(20, 40, 68, .98), rgba(6, 17, 32, .98))"
+                  color="#eef6ff"
+                  front={
+                    <div className="class-flip-front">
+                      <span className="micro-label">HAM10000 RESEARCH CLASSES</span>
+                      <strong>07</strong>
+                      <span>lesion categories</span>
+                      <small>Flip to explore the labels</small>
+                    </div>
+                  }
+                  back={
+                    <div className="class-flip-back">
+                      <span className="micro-label">SEVEN CLASS LABELS</span>
+                      <p><b>NV</b> · Melanocytic nevi</p>
+                      <p><b>MEL</b> · Melanoma</p>
+                      <p><b>BKL</b> · Benign keratosis-like</p>
+                      <p><b>BCC</b> · Basal cell carcinoma</p>
+                      <p><b>AKIEC</b> · Actinic keratoses</p>
+                      <p><b>VASC</b> · Vascular lesions</p>
+                      <p><b>DF</b> · Dermatofibroma</p>
+                    </div>
+                  }
+                  ariaLabel="Flip to inspect the seven HAM10000 research classes"
+                />
+              </div>
+
+              <div className="method-feedback">
+                <span className="method-label">RATE THE INTERFACE</span>
+                <PeekRating
+                  shape="star"
+                  size={22}
+                  count={5}
+                  activeColor="#b7d6ff"
+                  idleColor="#526987"
+                  tipColor="#142b48"
+                  tipTextColor="#eef6ff"
+                  labels={['Needs work', 'Fair', 'Good', 'Very good', 'Excellent']}
+                  onChange={setPreviewRating}
+                  ariaLabel="Rate the DermaGuard interface"
+                />
+                <span className="method-feedback__caption">
+                  {previewRating ? 'Thanks — your interface rating is noted in this session.' : 'Product feedback only; not a clinical outcome.'}
+                </span>
+              </div>
+            </aside>
+          </div>
         </section>
 
         <section className="review-section" id="image-review" aria-labelledby="review-title">
@@ -433,21 +594,19 @@ export default function HomePage() {
               </div>
             </div>
 
-            {selectedFile ? (
-              <div className="local-file-state">
-                <CallChip
-                  name="IMAGE"
-                  argument="ready in browser"
-                  status="idle"
-                  size={31}
-                  radius={9}
-                  color="#dceaff"
-                  surfaceColor="rgba(12, 27, 49, 0.9)"
-                  showTimer={false}
-                  progressColor="#83b5ff"
-                />
-              </div>
-            ) : null}
+            <div className="local-file-state">
+              <CallChip
+                name="IMAGE"
+                argument={selectedFile ? 'ready in browser' : 'awaiting image'}
+                status="idle"
+                size={31}
+                radius={9}
+                color="#dceaff"
+                surfaceColor="rgba(12, 27, 49, 0.9)"
+                showTimer={false}
+                progressColor="#83b5ff"
+              />
+            </div>
 
             {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
             {savedPrompt ? <p className="saved-prompt">NOTE <span>{savedPrompt}</span></p> : null}
