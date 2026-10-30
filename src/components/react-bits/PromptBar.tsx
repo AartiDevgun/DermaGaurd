@@ -71,6 +71,7 @@ export interface PromptBarProps {
   onSend?: (text: string, detail: PromptBarSendDetail) => void;
   onStop?: () => void;
   onAttach?: () => string | string[] | void | Promise<string | string[] | void>;
+  directAttachOnPlus?: boolean;
   onDictate?: () => string | void | Promise<string | void>;
   background?: string;
   color?: string;
@@ -224,6 +225,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
   onSend,
   onStop,
   onAttach,
+  directAttachOnPlus = false,
   onDictate,
   background = '#27272a',
   color = '#f5f5f5',
@@ -723,6 +725,15 @@ const PromptBar: React.FC<PromptBarProps> = ({
               setModelOpen(false);
               setEffortOpen(false);
               setActive(0);
+              if (directAttachOnPlus) {
+                setPlusOpen(false);
+                setDraft('');
+                Promise.resolve(latest.current.onAttach?.()).then(files => {
+                  if (!files) return;
+                  setAttachments(a => [...a, ...(Array.isArray(files) ? files : [files])]);
+                });
+                return;
+              }
               setPlusOpen(v => !v);
               focusInput();
             }}

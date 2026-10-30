@@ -3540,9 +3540,11 @@ html, body {
 }
 
 
-/* Pill geometry for every interactive control across the DermaGuard site. */
-.dermaguard-app button,
-.dermaguard-app [role="button"] {
+/* Reserve pill shapes for primary calls to action; icon and utility controls keep their own geometry. */
+.dermaguard-app .primary-link,
+.dermaguard-app .header-link,
+.dermaguard-app .choose-image-button,
+.dermaguard-app .upload-card__button {
   border-radius: 999px !important;
 }
 .dermaguard-app .primary-link {
@@ -3595,5 +3597,92 @@ html, body {
   }
   .dermaguard-app .choose-image-button {
     width: 100%;
+  }
+}
+
+
+/* Editorial type system: three complementary voices used throughout the experience. */
+.dermaguard-app {
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-feature-settings: "ss01" on;
+}
+.dermaguard-app h1,
+.dermaguard-app h2,
+.dermaguard-app h3,
+.dermaguard-app .quote-section blockquote,
+.dermaguard-app .upload-card__copy h3,
+.dermaguard-app .result-preview__title,
+.dermaguard-app .moon-assistant__title {
+  font-family: var(--font-editorial), Georgia, serif !important;
+  font-weight: 500;
+  letter-spacing: -.018em;
+}
+.dermaguard-app .eyebrow,
+.dermaguard-app .micro-label,
+.dermaguard-app .method-label,
+.dermaguard-app .upload-format-row__label,
+.dermaguard-app .hero-note,
+.dermaguard-app .hero-visual__caption,
+.dermaguard-app .composer-meta,
+.dermaguard-app .footer-brand,
+.dermaguard-app .workspace-mark,
+.dermaguard-app .agent-system__index,
+.dermaguard-app .result-preview__class-code {
+  font-family: var(--font-geist-mono), "Courier New", monospace !important;
+  letter-spacing: .075em;
+}
+.dermaguard-app p,
+.dermaguard-app li,
+.dermaguard-app label,
+.dermaguard-app input,
+.dermaguard-app textarea,
+.dermaguard-app select,
+.dermaguard-app button,
+.dermaguard-app .section-intro,
+.dermaguard-app .agent-detail__copy,
+.dermaguard-app .moon-assistant__message {
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+.dermaguard-app .quote-section blockquote { font-style: italic; }
+.dermaguard-app .section-heading h2,
+.dermaguard-app .method-heading h2,
+.dermaguard-app .workspace-title strong {
+  font-family: var(--font-editorial), Georgia, serif !important;
+}
+.dermaguard-app .review-workspace,
+.dermaguard-app .upload-card,
+.dermaguard-app .approach-card,
+.dermaguard-app .agent-card,
+.dermaguard-app .result-preview__panel {
+  transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+.dermaguard-app .approach-card:hover,
+.dermaguard-app .agent-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(57, 201, 223, .48);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .24), 0 0 24px rgba(57, 191, 244, .07);
+}
+.dermaguard-app button:focus-visible,
+.dermaguard-app a:focus-visible,
+.dermaguard-app input:focus-visible,
+.dermaguard-app textarea:focus-visible,
+.dermaguard-app select:focus-visible {
+  outline: 2px solid #70d9e8;
+  outline-offset: 3px;
+}
+.dermaguard-app .choose-image-button:active,
+.dermaguard-app .primary-link:active { transform: translateY(1px) scale(.985); }
+.dermaguard-app .upload-format-row > div:first-child p {
+  max-width: 380px;
+  color: #c6dff0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dermaguard-app *,
+  .dermaguard-app *::before,
+  .dermaguard-app *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

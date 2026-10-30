@@ -735,7 +735,7 @@ export default function HomePage() {
               <div className="upload-format-row">
                 <div>
                   <span className="upload-format-row__label">IMAGE FILE TYPE</span>
-                  <p>Filter the file picker to match your original image.</p>
+                  <p>Choose a photo from your device. We’ll show it here before anything else happens.</p>
                 </div>
                 <GlideSelect
                   options={[
@@ -779,6 +779,7 @@ export default function HomePage() {
                 sparkBoost={1.05}
                 radius={19}
                 onAttach={attachImage}
+                directAttachOnPlus
                 onSend={handlePromptSend}
               />
               <input
@@ -793,7 +794,7 @@ export default function HomePage() {
               />
               <div className="composer-meta">
                 <span>JPEG · PNG · WEBP · AVIF · UP TO 25 MB</span>
-                <span>Image preview stays in this browser until API integration.</span>
+                <span>Your image stays on this device for now. Nothing is sent to a server.</span>
               </div>
               <div className="local-file-state local-file-state--visible">
                 <CallChip
@@ -1120,7 +1121,6 @@ export default function HomePage() {
         <footer className="site-footer">
           <span className="footer-brand">DermaGuard<span>®</span></span>
           <span>Research-led image review. Designed around clarity.</span>
-          <span className="footer-disclaimer">NOT FOR CLINICAL DECISION-MAKING</span>
         </footer>
 
 
