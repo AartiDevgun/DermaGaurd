@@ -182,6 +182,8 @@ export default function HomePage() {
   const [logoDocked, setLogoDocked] = useState(false);
   const [logoSettled, setLogoSettled] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
+  const [activeStage, setActiveStage] = useState<ReviewStage>('quality');
+  const [previewRating, setPreviewRating] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
