@@ -6,12 +6,8 @@ const LightTunnel = dynamic(() => import('@/components/react-bits/LightTunnel'),
 const LatticeLoader = dynamic(() => import('@/components/react-bits/LatticeLoader'), { ssr: false });
 
 const AGENT_STAGES = [
-  { id: 'quality', label: 'Image Quality Agent', matches: ['quality', 'image-quality', 'a1'] },
-  { id: 'diagnosis', label: 'Diagnosis Agent', matches: ['diagnosis', 'classification', 'a2'] },
-  { id: 'lesion', label: 'Lesion Analysis Agent', matches: ['lesion', 'morphology', 'a3'] },
-  { id: 'context', label: 'Context Agent', matches: ['context', 'patient', 'a4'] },
-  { id: 'safety', label: 'Safety Agent', matches: ['safety', 'a5'] },
-  { id: 'coordinator', label: 'Coordinator Agent', matches: ['coordinator', 'decision', 'a6'] }
+  { id: 'quality', label: 'Image Quality', matches: ['quality', 'image-quality', 'a1'] },
+  { id: 'diagnosis', label: 'Diagnosis', matches: ['diagnosis', 'classification', 'a2'] }
 ] as const;
 
 export default function ProcessingScreen({ stage }: { stage?: string }) {
@@ -48,7 +44,7 @@ export default function ProcessingScreen({ stage }: { stage?: string }) {
       </div>
       <div className="processing-screen__content">
         <span className="processing-screen__eyebrow">
-          {isPreparing ? 'DERMAGUARD · IMAGE PREPARATION' : 'DERMAGUARD · AGENT HAND-OFF'}
+          {isPreparing ? 'DERMAGUARD' : current.toUpperCase()}
         </span>
         <LatticeLoader
           label={isPreparing ? 'Preparing image for review' : current + ' · thinking'}
@@ -64,11 +60,13 @@ export default function ProcessingScreen({ stage }: { stage?: string }) {
           cellSize={11}
           gap={5}
         />
-        <h2>{isPreparing ? 'Getting your image ready.' : 'Following the evidence.'}</h2>
+        <h2>{isPreparing ? 'Preparing the image.' : activeIndex === 0 ? 'Checking the capture.' : 'Classifying the image.'}</h2>
         <p>
           {isPreparing
-            ? 'Checking the selected file and preparing its local preview. This step does not run the lesion analysis.'
-            : 'The active agent is working on its part of the review. The next stage appears when the current agent reports completion.'}
+            ? 'Getting the original image ready.'
+            : activeIndex === 0
+              ? 'Checking focus, lighting, glare and obstruction.'
+              : 'Evaluating the accepted image across seven lesion classes.'}
         </p>
         {!isPreparing ? (
           <ol className="processing-screen__steps" aria-label="Agent review stages">
@@ -84,9 +82,7 @@ export default function ProcessingScreen({ stage }: { stage?: string }) {
           </ol>
         ) : null}
         <span className="processing-screen__foot">
-          {isPreparing
-            ? 'Local preview only · analysis service not connected'
-            : 'Stage labels follow actual agent-processing events.'}
+          The original image remains unchanged.
         </span>
       </div>
     </section>

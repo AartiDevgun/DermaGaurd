@@ -3673,3 +3673,73 @@ html, body {
   .dermaguard-app .primary-link::after { animation: none; }
 }
 
+
+
+/* DermaGuard art direction: botanical tones, restrained layout, and interactive workflow. */
+.dermaguard-app .brand-lockup .electric-logo-instance { filter: drop-shadow(0 0 18px rgba(112, 214, 185, .24)) drop-shadow(0 0 26px rgba(215, 173, 103, .12)); }
+.dermaguard-app .header-link { border-radius: 12px !important; border-color: rgba(112, 214, 185, .26); color: #d6eee5; background: rgba(17, 38, 36, .34); }
+.dermaguard-app .header-link:hover { border-color: rgba(112, 214, 185, .58); background: rgba(17, 50, 43, .45); }
+.dermaguard-app .primary-link { border-radius: 999px !important; border-color: rgba(112, 214, 185, .48); color: #0b211b; background: linear-gradient(112deg, #b6e6d0, #79cdb3 60%, #d5c28b); box-shadow: 0 12px 30px rgba(49, 136, 109, .18), inset 0 1px rgba(255,255,255,.55); }
+.dermaguard-app .primary-link:hover { border-color: rgba(232, 222, 177, .85); background: linear-gradient(112deg, #c7efd9, #8ed8bd 60%, #e4d29a); }
+.dermaguard-app .quote-section { margin: 18px 0 86px; padding: 72px 20px 68px; }
+.dermaguard-app .quote-section blockquote span { background: linear-gradient(100deg, #9edbc4 0%, #e0c58c 58%, #efa68e 100%); -webkit-background-clip: text; background-clip: text; }
+.dermaguard-app .eyebrow, .dermaguard-app .method-label, .dermaguard-app .micro-label { color: #8fd3b8 !important; }
+.dermaguard-app .hero-copy h1 .headline-blue { background: linear-gradient(105deg, #b5e7d1 0%, #75c9ad 45%, #ddc18b 100%); -webkit-background-clip: text; background-clip: text; }
+.dermaguard-app .hero-visual__caption i { background: #8fd3b8; box-shadow: 0 0 8px rgba(143, 211, 184, .48); }
+.dermaguard-app .hero-visual__caption { border-top-color: rgba(143, 211, 184, .2); }
+.dermaguard-app .difference-section { position: relative; padding: 24px 0 118px; scroll-margin-top: 60px; }
+.dermaguard-app .difference-section::before, .dermaguard-app .difference-section::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(112, 214, 185, .25), rgba(215, 173, 103, .18), transparent); }
+.dermaguard-app .difference-section::before { top: 0; } .dermaguard-app .difference-section::after { bottom: 0; }
+.dermaguard-app .difference-section__heading { display: flex; align-items: end; justify-content: space-between; gap: 48px; margin-bottom: 42px; }
+.dermaguard-app .difference-section__heading .eyebrow { margin: 0 0 20px; }
+.dermaguard-app .difference-section__heading h2 { margin: 0; color: #edf5ef; font-family: var(--font-editorial), Georgia, serif; font-size: clamp(48px, 5.7vw, 76px); font-weight: 500; letter-spacing: -.045em; line-height: .98; }
+.dermaguard-app .difference-section__heading h2 em { color: #9ed8c1; font-style: italic; }
+.dermaguard-app .difference-section__heading > p { max-width: 390px; margin: 0 0 5px; color: rgba(193, 211, 202, .76); font-size: 14px; line-height: 1.85; }
+.dermaguard-app .difference-explorer { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); align-items: center; gap: clamp(28px, 6vw, 90px); min-height: 420px; }
+.dermaguard-app .difference-explorer__story { min-width: 0; }
+.dermaguard-app .difference-explorer__story > .method-label { display: block; margin-bottom: 17px; color: rgba(158, 216, 193, .78) !important; font-size: 10px; }
+.dermaguard-app .difference-explorer__story .jelly-radio { width: fit-content; max-width: 100%; margin: 0 0 32px -3px; padding: 4px; border: 1px solid rgba(141, 191, 169, .18); border-radius: 999px; background: rgba(10, 20, 19, .7); }
+.dermaguard-app .difference-explorer__story .jelly-radio__skin { border-color: transparent; background: transparent; color: #c8ddd4; font-size: 12px; }
+.dermaguard-app .difference-explorer__story .jelly-radio__chip[data-on='true'] .jelly-radio__skin { border-color: rgba(158, 216, 193, .3); color: #10251e; background: linear-gradient(120deg, #b9e6d0, #8fd3b8); box-shadow: 0 5px 16px rgba(65, 138, 109, .18); }
+.dermaguard-app .difference-detail { max-width: 620px; }
+.dermaguard-app .difference-detail__meta { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(154, 199, 177, .18); color: rgba(147, 190, 170, .7); font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: .1em; }
+.dermaguard-app .difference-detail h3 { margin: 24px 0 13px; color: #edf5ef; font-family: var(--font-editorial), Georgia, serif; font-size: clamp(30px, 3.4vw, 43px); font-weight: 500; letter-spacing: -.035em; }
+.dermaguard-app .difference-detail > p { max-width: 540px; margin: 0; color: rgba(194, 214, 204, .8); font-size: 14px; line-height: 1.85; }
+.dermaguard-app .difference-detail__terms { margin-top: 22px; color: #9ed8c1; font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: .08em; line-height: 1.8; }
+.dermaguard-app .difference-detail .difference-detail__callout { margin-top: 19px; padding-left: 14px; border-left: 2px solid rgba(215, 173, 103, .62); color: #e3d7b6; font-size: 13px; }
+.dermaguard-app .difference-art { position: relative; display: grid; place-items: center; width: min(100%, 440px); aspect-ratio: 1; margin: 0 auto; isolation: isolate; --stage-a: #8fd3b8; --stage-b: #d8bf83; }
+.dermaguard-app .difference-art[data-stage='diagnosis'] { --stage-a: #86badd; --stage-b: #b5d7e7; }
+.dermaguard-app .difference-art[data-stage='decision'] { --stage-a: #d9bf85; --stage-b: #e6a18f; }
+.dermaguard-app .difference-art::before { content: ""; position: absolute; inset: 11%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--stage-a) 18%, transparent), transparent 68%); filter: blur(20px); animation: difference-aura 8s ease-in-out infinite alternate; }
+.dermaguard-app .difference-art__orbit { position: absolute; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--stage-a) 48%, transparent); border-radius: 50%; box-shadow: 0 0 24px color-mix(in srgb, var(--stage-a) 8%, transparent), inset 0 0 24px color-mix(in srgb, var(--stage-a) 6%, transparent); transition: border-color 500ms ease, transform 700ms var(--ease); }
+.dermaguard-app .difference-art__orbit--outer { width: 88%; height: 88%; border-style: dashed; animation: difference-spin 45s linear infinite; }
+.dermaguard-app .difference-art__orbit--middle { width: 66%; height: 66%; border-color: color-mix(in srgb, var(--stage-b) 55%, transparent); animation: difference-spin 33s linear infinite reverse; }
+.dermaguard-app .difference-art__orbit--inner { width: 43%; height: 43%; border-color: color-mix(in srgb, var(--stage-a) 62%, transparent); }
+.dermaguard-app .difference-art__orbit span { position: absolute; top: 5%; left: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--stage-a); box-shadow: 0 0 14px var(--stage-a); }
+.dermaguard-app .difference-art__orbit--middle span { top: auto; bottom: 11%; left: 14%; width: 6px; height: 6px; background: var(--stage-b); box-shadow: 0 0 13px var(--stage-b); }
+.dermaguard-app .difference-art__orbit--inner span { top: 50%; left: auto; right: -4px; width: 5px; height: 5px; }
+.dermaguard-app .difference-art__core { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 31%; height: 31%; border: 1px solid color-mix(in srgb, var(--stage-a) 65%, transparent); border-radius: 50%; background: radial-gradient(circle at 30% 24%, rgba(236, 251, 243, .13), rgba(9, 24, 22, .8) 70%); box-shadow: 0 0 46px color-mix(in srgb, var(--stage-a) 17%, transparent), inset 0 1px rgba(255,255,255,.1); }
+.dermaguard-app .difference-art__core strong { color: #edf6ef; font-family: var(--font-editorial), Georgia, serif; font-size: clamp(32px, 5vw, 62px); font-weight: 400; line-height: 1; }
+.dermaguard-app .difference-art__core span { max-width: 90%; margin-top: 8px; color: var(--stage-a); font-family: var(--font-geist-mono), monospace; font-size: 8px; letter-spacing: .08em; text-align: center; }
+.dermaguard-app .difference-art__axis { position: absolute; color: rgba(172, 200, 185, .6); font-family: var(--font-geist-mono), monospace; font-size: 9px; letter-spacing: .16em; }
+.dermaguard-app .difference-art__axis--top { top: 4%; right: 10%; } .dermaguard-app .difference-art__axis--bottom { bottom: 4%; left: 9%; }
+@keyframes difference-spin { to { transform: rotate(360deg); } } @keyframes difference-aura { to { transform: scale(1.08); opacity: .7; } }
+.dermaguard-app .upload-surface { display: flex; align-items: center; gap: 18px; min-height: 120px; padding: 22px 24px; border: 1px solid rgba(143, 211, 184, .2); border-radius: 20px; background: radial-gradient(ellipse 70% 140% at 0% 50%, rgba(77, 156, 126, .12), transparent 66%), linear-gradient(120deg, rgba(16, 32, 29, .72), rgba(7, 16, 19, .84)); box-shadow: inset 0 1px rgba(230, 249, 239, .04); }
+.dermaguard-app .upload-plus { display: grid; place-items: center; flex: none; width: 58px; height: 58px; border: 1px solid rgba(158, 216, 193, .55); border-radius: 50%; color: #10251e; background: linear-gradient(140deg, #c4edd9, #80cbb0 65%, #ddc38f); box-shadow: 0 0 24px rgba(112, 214, 185, .18), inset 0 1px rgba(255,255,255,.7); cursor: pointer; transition: transform 220ms var(--ease), box-shadow 220ms ease; }
+.dermaguard-app .upload-plus:hover { transform: rotate(90deg) scale(1.05); box-shadow: 0 0 34px rgba(112, 214, 185, .3); }
+.dermaguard-app .upload-plus:active { transform: scale(.96); }
+.dermaguard-app .upload-plus > span { margin-top: -4px; font-size: 39px; font-weight: 300; line-height: 1; }
+.dermaguard-app .upload-surface__copy { display: grid; gap: 7px; min-width: 0; }
+.dermaguard-app .upload-surface__copy strong { color: #e3f2e9; font-size: 15px; font-weight: 600; }
+.dermaguard-app .upload-surface__copy span { color: rgba(178, 205, 191, .64); font-size: 11px; letter-spacing: .04em; }
+.dermaguard-app .upload-surface__limit { margin-left: auto; color: rgba(178, 205, 191, .44); font-family: var(--font-geist-mono), monospace; font-size: 9px; letter-spacing: .12em; white-space: nowrap; }
+.dermaguard-app .local-file-state { margin-top: 15px; }
+.dermaguard-app .workflow-notice { color: #dfc79a; font-size: 12px; }
+.dermaguard-app .review-workspace { border-color: rgba(126, 178, 154, .24); background: radial-gradient(ellipse 70% 65% at 8% 0%, rgba(67, 131, 104, .1), transparent 70%), linear-gradient(140deg, rgba(12, 28, 26, .82), rgba(5, 13, 14, .92)); box-shadow: 0 28px 85px rgba(0,0,0,.34), inset 0 1px rgba(225, 244, 232, .04); }
+.dermaguard-app .workspace-mark { border-color: rgba(143, 211, 184, .42); color: #d0ebdc; background: linear-gradient(145deg, rgba(54, 116, 88, .32), rgba(18, 48, 37, .25)); }
+.dermaguard-app .result-feedback { display: flex; align-items: center; gap: 16px; margin-top: 25px; color: rgba(171, 203, 185, .72); font-size: 10px; letter-spacing: .14em; }
+.dermaguard-app .review-footnote { color: rgba(168, 191, 178, .64); }
+.dermaguard-app .site-footer { border-top-color: rgba(143, 211, 184, .16); } .dermaguard-app .footer-brand { color: #cae8d8; }
+@media (max-width: 900px) { .dermaguard-app .difference-section__heading { align-items: start; flex-direction: column; gap: 18px; } .dermaguard-app .difference-section__heading > p { max-width: 620px; } .dermaguard-app .difference-explorer { grid-template-columns: 1fr; gap: 12px; } .dermaguard-app .difference-art { width: min(82vw, 420px); } }
+@media (max-width: 680px) { .dermaguard-app .quote-section { margin: 0 0 66px; padding: 55px 8px; } .dermaguard-app .difference-section { padding: 10px 0 78px; } .dermaguard-app .difference-explorer__story .jelly-radio { width: 100%; justify-content: space-between; gap: 3px; margin-bottom: 28px; } .dermaguard-app .difference-explorer__story .jelly-radio__skin { padding: 0 9px; font-size: 10px; } .dermaguard-app .difference-art { width: min(100%, 360px); } .dermaguard-app .upload-surface { gap: 13px; min-height: 98px; padding: 17px 14px; } .dermaguard-app .upload-plus { width: 51px; height: 51px; } .dermaguard-app .upload-surface__copy strong { font-size: 13px; } .dermaguard-app .upload-surface__copy span { font-size: 10px; } .dermaguard-app .upload-surface__limit { display: none; } .dermaguard-app .result-feedback { align-items: flex-start; flex-direction: column; gap: 9px; } }
+@media (prefers-reduced-motion: reduce) { .dermaguard-app .difference-art__orbit, .dermaguard-app .difference-art::before, .dermaguard-app .upload-plus { animation: none !important; transition: none !important; } }

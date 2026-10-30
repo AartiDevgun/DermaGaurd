@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
 import ElectricLogo from '@/components/react-bits/ElectricLogo';
-import PromptBar, { type PromptBarSendDetail } from '@/components/react-bits/PromptBar';
 import GlideSelect from '@/components/react-bits/GlideSelect';
 import CallChip, { type CallChipStatus } from '@/components/react-bits/CallChip';
 import FlipCard from '@/components/react-bits/FlipCard';
@@ -10,9 +9,7 @@ import PeekRating from '@/components/react-bits/PeekRating';
 import JellyRadio from '@/components/react-bits/JellyRadio';
 import ProcessingScreen from '@/components/ProcessingScreen';
 
-type ChatMessage = { role: 'user' | 'assistant'; text: string };
-type AgentId = 'quality' | 'diagnosis' | 'lesion' | 'context' | 'safety' | 'coordinator';
-
+type StoryStepId = 'quality' | 'diagnosis' | 'decision';
 type LesionCode = 'NV' | 'MEL' | 'BKL' | 'BCC' | 'AKIEC' | 'VASC' | 'DF';
 type QualityResult = {
   clarityScore: number;
@@ -42,82 +39,50 @@ const validUnitScore = (value: unknown): value is number =>
 const validClarityScore = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
 
-type AgentSpec = {
-  id: AgentId;
-  code: string;
-  short: string;
-  name: string;
-  description: string;
-  outputs: string[];
-  guardrail: string;
-};
-
-const AGENTS: AgentSpec[] = [
+const STORY_STEPS: {
+  id: StoryStepId;
+  number: string;
+  label: string;
+  title: string;
+  copy: string;
+  detail: string;
+  callout: string;
+  visualLabel: string;
+}[] = [
   {
     id: 'quality',
-    code: 'A1',
-    short: 'Quality',
-    name: 'Image Quality Agent',
-    description: 'Assesses blur, focus, illumination, glare, reflections and obstruction before the rest of the evidence is interpreted.',
-    outputs: ['quality_status: PASS / FAIL', 'quality_score: 0–100', 'reasons[]', 'reliability_flags[]'],
-    guardrail: 'The original image is never enhanced or altered for classifier input.'
+    number: '01',
+    label: 'Image quality',
+    title: 'Check the capture first.',
+    copy: 'Blur, poor lighting, glare and obstruction can undermine what a classifier sees. The Image Quality Agent checks whether the original capture is suitable before classification begins.',
+    detail: 'FOCUS · LIGHT · GLARE · OBSTRUCTION',
+    callout: 'The original image is not enhanced or altered for classification.',
+    visualLabel: 'QUALITY GATE'
   },
   {
     id: 'diagnosis',
-    code: 'A2',
-    short: 'Diagnosis',
-    name: 'Diagnosis Agent',
-    description: 'Classifies the original image into the seven HAM10000 lesion classes and returns the full class-score distribution.',
-    outputs: ['prediction: NV / MEL / BKL / BCC / AKIEC / VASC / DF', 'class_probabilities: all 7 classes', 'top_class_score', 'model_reliability_flags[]'],
-    guardrail: 'Every image receives a predicted class, including images whose final triage action is RE_IMAGE or REFER.'
+    number: '02',
+    label: 'Classification',
+    title: 'Read across seven classes.',
+    copy: 'Once the image passes the quality check, the Diagnosis Agent evaluates it across the seven HAM10000 lesion classes and returns the full class-score distribution—not only the top label.',
+    detail: 'NV · MEL · BKL · BCC · AKIEC · VASC · DF',
+    callout: 'One predicted class, alongside all seven class scores.',
+    visualLabel: '7 LESION CLASSES'
   },
   {
-    id: 'lesion',
-    code: 'A3',
-    short: 'Lesion',
-    name: 'Lesion Analysis Agent',
-    description: 'Examines visible morphology for asymmetry, border irregularity and color variation, then records the visual evidence supporting its assessment.',
-    outputs: ['feature_evidence[]', 'suspicion_score', 'reliability_flags[]', 'observed / not-observed / unclear per cue'],
-    guardrail: 'It must mark a cue unclear when image quality does not support a reliable visual judgement.'
-  },
-  {
-    id: 'context',
-    code: 'A4',
-    short: 'Context',
-    name: 'Reasoning / Context Agent',
-    description: 'Uses supplied age, gender and lesion location only when available and relevant; missing fields remain explicitly missing.',
-    outputs: ['context_evidence[]', 'risk_indicator', 'missing_field_flags[]', 'context_reliability'],
-    guardrail: 'No demographic or location value is inferred, defaulted or fabricated.'
-  },
-  {
-    id: 'safety',
-    code: 'A5',
-    short: 'Safety',
-    name: 'Safety Agent',
-    description: 'Checks image quality, diagnosis, lesion evidence and context for contradictions, weak evidence and unsafe automatic decisions.',
-    outputs: ['safety_flag', 'veto: true / false', 'trigger[]', 'justification'],
-    guardrail: 'A safety veto prevents AUTO_TRIAGE and must carry a traceable reason.'
-  },
-  {
-    id: 'coordinator',
-    code: 'A6',
-    short: 'Coordinator',
-    name: 'Coordinator Agent',
-    description: 'Receives the five upstream outputs and applies the documented decision policy to create one final, auditable response.',
-    outputs: ['prediction: one of 7 class codes', 'decision: AUTO_TRIAGE / REFER / RE_IMAGE', 'traceable_rationale', 'agent_agreement / disagreement'],
-    guardrail: 'The final response always contains both a class prediction and a triage decision.'
+    id: 'decision',
+    number: '03',
+    label: 'Next step',
+    title: 'Keep the decision separate.',
+    copy: 'A transparent decision layer combines the quality and classification outputs to determine the next action. A class prediction alone does not decide the route.',
+    detail: 'AUTO-TRIAGE · REFER · RE-IMAGE',
+    callout: 'The next step has its own rationale.',
+    visualLabel: 'DECISION LAYER'
   }
 ];
 
-const IMAGE_FORMAT_ACCEPT = {
-  all: 'image/jpeg,image/png,image/webp,image/avif',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
-  avif: 'image/avif'
-} as const;
-
-type ImageFormat = keyof typeof IMAGE_FORMAT_ACCEPT;
+const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+const IMAGE_ACCEPT = SUPPORTED_IMAGE_TYPES.join(',');
 
 const logoSrc = '/brand/dermaguard-shield.webp';
 
@@ -176,205 +141,21 @@ function makeSparkStyle(index: number): CSSProperties {
   } as CSSProperties;
 }
 
-function LunaAssistant() {
-  const [open, setOpen] = useState(false);
-  const [winking, setWinking] = useState(false);
-  const [draft, setDraft] = useState('');
-  const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
-  const [feedbackNotice, setFeedbackNotice] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      text: 'Hey! I’m Luna, your DermaGuard buddy. Confused about an upload or a result? Just ask — I’ll explain things in plain English and help you find your way around. I can guide you, but I can’t diagnose a skin spot.'
-    }
-  ]);
-
-  const guideReply = (question: string) => {
-    const q = question.toLowerCase().trim();
-
-    if (/^(hi|hey|heya|hello|yo|sup|what's up)(?:\s+luna)?[!.?\s]*$/.test(q)) {
-      return 'Heyyy! What’s up? Need help with an upload, a result, or something else? I’m listening.';
-    }
-    if (/how are you|how's it going/.test(q)) {
-      return 'Doing well — especially now that you’re here. What are we figuring out today?';
-    }
-    if (/upload|image|photo|picture|capture/.test(q)) {
-      return 'Easy! Head to “Start your image review” and tap “Choose image”. Pick a clear dermoscopic picture with good lighting. Avoid filters or screenshots. You’ll see a preview here, but the actual image analysis isn’t connected yet.';
-    }
-    if (/result|prediction|class|confidence|score|probab/.test(q)) {
-      return 'When the analysis is connected, you’ll see two things: the model’s prediction across seven skin-lesion classes, and the screening action chosen by the Coordinator. The scores describe the model’s output — they aren’t a diagnosis. Share a result with me and I’ll help you understand each part.';
-    }
-    if (/re.image|reimage|retake|blurry|blur|quality/.test(q)) {
-      return 'RE-IMAGE simply means the picture wasn’t clear enough to review properly. Try again with the spot in focus, even lighting and no glare. Skip filters or edits — the original image matters.';
-    }
-    if (/refer|dermatologist|doctor|specialist|professional/.test(q)) {
-      return 'REFER means it’s safer to have a qualified dermatologist or clinician take a look. It can be triggered by something suspicious, unclear or conflicting in the evidence. Bring along the image and mention any changes you’ve noticed.';
-    }
-    if (/auto|triage|decision|next step/.test(q)) {
-      return 'Here’s the simple version: AUTO-TRIAGE is the system’s screening decision, REFER means a clinician should review it, and RE-IMAGE means the picture needs to be taken again. Even AUTO-TRIAGE is not a medical all-clear.';
-    }
-    if (/disease|melanoma|cancer|skin|lesion|mole|treat|symptom|itch|bleed|change|pain/.test(q)) {
-      return 'That can be worrying. I can’t tell what a spot is from chat. If it’s new, changing, uneven, bleeding, painful or not healing, please arrange a check with a dermatologist or another qualified clinician. Don’t try to remove or treat a suspicious spot yourself.';
-    }
-    if (/website|offer|feature|agent|how does|what can/.test(q)) {
-      return 'Think of DermaGuard as six specialists working together: one checks image quality, one predicts a class, one looks at visible features, one considers the details you share, one checks for safety issues, and the Coordinator brings it all together. I can walk you through any of those — no jargon required.';
-    }
-    if (/feedback|suggest|improve|bug/.test(q)) {
-      return 'Please do tell me what you think! The rating and comment box are here, but the feedback inbox isn’t connected yet, so your note won’t reach the project team just now.';
-    }
-    return 'Hmm, I’m not quite sure what you mean yet. Tell me what you’re stuck on — the image upload, a screening result, or just finding your way around — and we’ll take it one step at a time.';
-  };
-
-  const sendMessage = (raw: string) => {
-    const message = raw.trim();
-    if (!message) return;
-    setMessages(current => [
-      ...current,
-      { role: 'user', text: message },
-      { role: 'assistant', text: guideReply(message) }
-    ]);
-    setDraft('');
-    setWinking(true);
-  };
-
-  const sendForm = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    sendMessage(draft);
-  };
-
-  const saveFeedbackDraft = () => {
-    if (!rating && !feedback.trim()) {
-      setFeedbackNotice('Choose a rating or add a comment first.');
-      return;
-    }
-    setFeedbackNotice('Feedback is drafted in this session, but it is not delivered to the project team yet. A feedback destination still needs to be connected.');
-  };
-
-  const suggestions = [
-    'How do I upload an image?',
-    'What does REFER mean?',
-    'What can DermaGuard do?'
-  ];
-
-  return (
-    <aside className="moon-assistant" aria-label="Luna, the DermaGuard guide">
-      {open ? (
-        <div className="moon-panel luna-panel">
-          <div className="moon-panel__header">
-            <div className="moon-panel__identity">
-              <span className="moon-mini" aria-hidden="true">☾</span>
-              <span><strong>Luna</strong><small>Your DermaGuard guide</small></span>
-            </div>
-            <button type="button" className="moon-close" onClick={() => setOpen(false)} aria-label="Close Luna">×</button>
-          </div>
-          <div className="luna-suggestions">
-            {suggestions.map(item => (
-              <button type="button" key={item} onClick={() => sendMessage(item)}>{item}</button>
-            ))}
-          </div>
-          <div className="moon-messages" aria-live="polite">
-            {messages.map((message, index) => (
-              <div className={'moon-message moon-message--' + message.role} key={index}>{message.text}</div>
-            ))}
-          </div>
-          <form className="moon-compose" onSubmit={sendForm}>
-            <input
-              value={draft}
-              onChange={event => setDraft(event.target.value)}
-              placeholder="Ask Luna about your next step..."
-              aria-label="Message Luna"
-            />
-            <button type="submit" disabled={!draft.trim()} aria-label="Send message">↗</button>
-          </form>
-          <div className="luna-feedback">
-            <span className="method-label">HELP US IMPROVE DERMA GUARD</span>
-            <PeekRating
-              value={rating}
-              onChange={setRating}
-              shape="star"
-              size={19}
-              count={5}
-              activeColor="#9bc5ff"
-              idleColor="#465979"
-              tipColor="#112443"
-              tipTextColor="#eef5ff"
-              labels={['Needs work', 'Fair', 'Good', 'Very good', 'Excellent']}
-              ariaLabel="Rate the DermaGuard website"
-            />
-            <textarea
-              rows={2}
-              maxLength={1200}
-              value={feedback}
-              onChange={event => setFeedback(event.target.value)}
-              placeholder="What should we improve?"
-              aria-label="Website feedback"
-            />
-            <button type="button" className="luna-feedback__submit" onClick={saveFeedbackDraft}>Prepare feedback</button>
-            {feedbackNotice ? <p role="status">{feedbackNotice}</p> : null}
-          </div>
-          <p className="moon-disclaimer">I can explain the site, but I can’t tell you what a skin spot is. The live image analysis and feedback inbox aren’t connected yet.</p>
-        </div>
-      ) : null}
-      <button
-        className={'moon-launcher' + (winking ? ' moon-launcher--wink' : '')}
-        type="button"
-        onClick={() => {
-          setOpen(value => !value);
-          setWinking(value => !value);
-        }}
-        onMouseEnter={() => setWinking(true)}
-        onMouseLeave={() => setWinking(false)}
-        aria-label={open ? 'Close Luna guide' : 'Open Luna guide'}
-        aria-expanded={open}
-      >
-        <span className="moon-halo" />
-        <svg viewBox="0 0 88 88" role="img" aria-label="Smiling crescent moon">
-          <defs>
-            <linearGradient id="moon-gradient" x1="14%" y1="10%" x2="88%" y2="92%">
-              <stop offset="0%" stopColor="#f0f8ff" />
-              <stop offset="46%" stopColor="#b8d9ff" />
-              <stop offset="100%" stopColor="#729bdf" />
-            </linearGradient>
-            <linearGradient id="moon-shadow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#d7eaff" stopOpacity=".1" />
-              <stop offset="100%" stopColor="#547fbd" stopOpacity=".48" />
-            </linearGradient>
-          </defs>
-          <path d="M60.8 10.8c-1.5 15.2 8.4 30 23 34.3-3.4 20.2-21.8 34.8-42.5 32.2C20.1 74.7 5.1 55 8.1 34 10.8 15.7 27.4 2.4 45.9 3.9c5.4.4 10.5 2.7 14.9 6.9Z" fill="url(#moon-gradient)" />
-          <path d="M60.8 10.8c-1.5 15.2 8.4 30 23 34.3-3.4 20.2-21.8 34.8-42.5 32.2C20.1 74.7 5.1 55 8.1 34 10.8 15.7 27.4 2.4 45.9 3.9c5.4.4 10.5 2.7 14.9 6.9Z" fill="url(#moon-shadow)" />
-          <path d="M24 36c2.4-3 5.1-3 7.6 0" fill="none" stroke="#25466f" strokeWidth="2.8" strokeLinecap="round" />
-          <path d={winking ? 'M47 37c3.2 2.2 6 2.2 9.2 0' : 'M47 36c2.4-3 5.1-3 7.6 0'} fill="none" stroke="#25466f" strokeWidth="2.8" strokeLinecap="round" />
-          <path d="M31 49c5.3 8.1 14.7 8.1 20 0" fill="none" stroke="#31547b" strokeWidth="2.7" strokeLinecap="round" />
-          <circle cx="22" cy="47" r="3.5" fill="#a7caff" opacity=".68" />
-          <circle cx="60" cy="47" r="3.5" fill="#a7caff" opacity=".68" />
-          <path d="m70 15 2.2 4.6 4.8 2.1-4.8 2.2-2.2 4.7-2.1-4.7-4.8-2.2 4.8-2.1Z" fill="#e4f1ff" />
-        </svg>
-        <span className="moon-launcher__label">Meet Luna</span>
-      </button>
-    </aside>
-  );
-}
-
 export default function HomePage() {
   const [logoDocked, setLogoDocked] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
-  const [activeAgent, setActiveAgent] = useState<AgentId>('quality');
+  const [activeStoryStep, setActiveStoryStep] = useState<StoryStepId>('quality');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imageFormat, setImageFormat] = useState<ImageFormat>('all');
   const [imageStatus, setImageStatus] = useState<CallChipStatus>('idle');
   const [qualityResult, setQualityResult] = useState<QualityResult | null>(null);
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
-  const [contextAge, setContextAge] = useState('');
-  const [contextGender, setContextGender] = useState('');
-  const [contextLocation, setContextLocation] = useState('');
+  const [experienceRating, setExperienceRating] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const attachResolver = useRef<((value?: string) => void) | null>(null);
 
   useEffect(() => {
     const dockTimer = window.setTimeout(() => setLogoDocked(true), 1850);
@@ -407,46 +188,16 @@ export default function HomePage() {
     return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  const finishAttachment = (value?: string) => {
-    attachResolver.current?.(value);
-    attachResolver.current = null;
-  };
-
   const openImagePicker = () => {
     const input = fileInputRef.current;
     if (!input) {
-      setNotice('The image picker could not be opened. Refresh the page and try again.');
+      setNotice('Image selection is unavailable. Refresh the page and try again.');
       return false;
     }
     input.value = '';
-    setImageStatus('running');
-    setNotice('Choose a supported image file to add it to the review.');
     input.click();
     return true;
   };
-
-  const attachImage = () =>
-    new Promise<string | void>((resolve) => {
-      attachResolver.current = resolve;
-      if (!openImagePicker()) finishAttachment();
-    });
-
-  const handleImageCancel = () => {
-    setImageStatus(selectedFile ? 'done' : 'idle');
-    finishAttachment();
-  };
-
-  useEffect(() => {
-    const input = fileInputRef.current;
-    if (!input) return undefined;
-    const handleNativeCancel = () => {
-      setImageStatus(selectedFile ? 'done' : 'idle');
-      attachResolver.current?.();
-      attachResolver.current = null;
-    };
-    input.addEventListener('cancel', handleNativeCancel);
-    return () => input.removeEventListener('cancel', handleNativeCancel);
-  }, [selectedFile]);
 
   useEffect(() => {
     // The inference client will dispatch these only after receiving real API responses.
@@ -505,62 +256,45 @@ export default function HomePage() {
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file) {
-      handleImageCancel();
-      return;
-    }
-    const acceptedTypes = IMAGE_FORMAT_ACCEPT[imageFormat].split(',');
-    if (!acceptedTypes.includes(file.type)) {
+    if (!file) return;
+
+    if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
       setImageStatus('error');
-      setNotice('That file does not match the selected format. Change the format filter or choose another image.');
-      finishAttachment();
+      setNotice('Choose a JPEG, PNG, WebP or AVIF image.');
       input.value = '';
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
       setImageStatus('error');
       setNotice('This image is larger than 25 MB. Choose a smaller image.');
-      finishAttachment();
       input.value = '';
       return;
     }
+
     setQualityResult(null);
     setDiagnosisResult(null);
+    setExperienceRating(0);
     setSelectedFile(file);
-    setImageStatus('running');
-    setIsProcessing(true);
-    setProcessingStage('preparing image');
+    setImageStatus('idle');
+    setIsProcessing(false);
+    setProcessingStage('');
     setNotice('');
-    finishAttachment(file.name);
     input.value = '';
   };
 
-  const handlePromptSend = (text: string, detail: PromptBarSendDetail) => {
-    if (!selectedFile) {
-      setNotice('Choose a dermoscopic image first. The prompt is ready, but there is no image selected.');
-      return;
-    }
-    const note = text.trim();
-    setNotice(
-      note
-        ? 'Your note is ready locally with the selected image. The live analysis API is not connected, so nothing has been uploaded or analysed.'
-        : 'Your image is selected and previewed locally. The live analysis API is not connected, so nothing has been uploaded or analysed.'
-    );
-    void detail;
-  };
+  const activeStoryDetails = STORY_STEPS.find(step => step.id === activeStoryStep) ?? STORY_STEPS[0];
 
-  const activeAgentDetails = AGENTS.find(agent => agent.id === activeAgent) ?? AGENTS[0];
 
   return (
     <main className={'dermaguard-app' + (workspaceVisible ? ' dermaguard-app--revealed' : '')}>
       <div className="petal-field" aria-hidden="true">
-        {Array.from({ length: 180 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
+        {Array.from({ length: 28 }, (_, index) => <span className="blue-petal" style={makePetalStyle(index)} key={index} />)}
       </div>
       <div className="crystal-field" aria-hidden="true">
-        {Array.from({ length: 240 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
+        {Array.from({ length: 96 }, (_, index) => <span className="blue-crystal" style={makeCrystalStyle(index)} key={index} />)}
       </div>
       <div className="sparkle-field" aria-hidden="true">
-        {Array.from({ length: 72 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
+        {Array.from({ length: 32 }, (_, index) => <span className="ambient-sparkle" style={makeSparkStyle(index)} key={index} />)}
       </div>
       <div className="ambient-glow" aria-hidden="true" />
 
@@ -570,8 +304,8 @@ export default function HomePage() {
           {!logoDocked ? (
             <ElectricLogo
               src={logoSrc}
-              color="#bdd9ff"
-              glowColor="#5d96ff"
+              color="#70D6B9"
+              glowColor="#D7AD67"
               scale={0.82}
               intensity={1.18}
               glow={1.05}
@@ -591,7 +325,7 @@ export default function HomePage() {
         </div>
         <div className="brand-type">
           <span className="brand-wordmark">DermaGuard</span>
-          <span className="brand-tagline">A MORE THOUGHTFUL FIRST LOOK</span>
+          <span className="brand-tagline">QUALITY BEFORE CLASSIFICATION</span>
         </div>
       </div>
 
@@ -606,48 +340,99 @@ export default function HomePage() {
           <button type="button" className="header-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↗</span></button>
         </header>
 
+        <section className="quote-section" aria-label="Prevention quote">
+          <blockquote>“An ounce of prevention is greater than a <span>pound of cure.</span>”</blockquote>
+          <p className="quote-caption">— <strong>Benjamin Franklin</strong></p>
+        </section>
+
         <section className="hero-section" aria-labelledby="entry-title">
           <div className="hero-copy">
             <p className="eyebrow"><span /> DERMAGUARD · SKIN IMAGE REVIEW</p>
             <h1 id="entry-title">
-              Skin, seen clearly.
-              <span className="headline-blue">Evidence, considered.</span>
+              Before a result,
+              <span className="headline-blue"> check the image.</span>
             </h1>
             <p className="hero-description">
-              Six specialist checks bring image quality, visible features, relevant context and safety review into one traceable screening workflow.
+              A class label is only part of a useful first review. DermaGuard checks image quality first, evaluates accepted captures across seven lesion classes, then keeps the next-step decision separate.
             </p>
             <div className="hero-actions">
-              <button type="button" className="primary-link" onClick={openImagePicker}>Upload an image <span aria-hidden="true">↓</span></button>
-              <span className="hero-note">7 LESION CLASSES <i /> 3 TRIAGE ACTIONS</span>
+              <button type="button" className="primary-link" onClick={openImagePicker}>Add an image <span aria-hidden="true">↓</span></button>
+              <span className="hero-note">QUALITY FIRST <i /> 7 LESION CLASSES <i /> 3 NEXT STEPS</span>
             </div>
           </div>
-
           <div className="hero-visual" aria-label="DermaGuard protective botanical shield emblem">
             <div className="hero-visual__artwork">
-              <img src={logoSrc} alt="DermaGuard emblem showing a face protected by a botanical shield" />
+              <img src={logoSrc} alt="DermaGuard botanical shield emblem" />
             </div>
             <div className="hero-visual__caption">
-              <span>IMAGE-LED RESEARCH</span>
+              <span>QUALITY BEFORE CLASSIFICATION</span>
               <i />
-              <span>EXPLAINABLE TRIAGE</span>
+              <span>ONE CLEAR NEXT STEP</span>
             </div>
-            <p className="hero-visual__note">A coordinated review, from image quality to final disposition.</p>
           </div>
         </section>
 
-        <section className="quote-section" aria-label="Prevention quote">
-          <blockquote>“Look closer. <span>Understand more.</span>”</blockquote>
-          <p className="quote-caption">A more considered approach to skin image review.</p>
+        <section className="difference-section" id="difference" aria-labelledby="difference-title">
+          <div className="difference-section__heading">
+            <div>
+              <p className="eyebrow"><span /> THE DERMAGUARD APPROACH</p>
+              <h2 id="difference-title">A class label<br /><em>isn’t the whole picture.</em></h2>
+            </div>
+            <p>
+              Blur, glare and uneven lighting can undermine what a model sees. DermaGuard separates image quality, lesion classification and the next-step decision instead of treating them as one score.
+            </p>
+          </div>
+          <div className="difference-explorer">
+            <div className="difference-explorer__story">
+              <span className="method-label">EXPLORE THE THREE STEPS</span>
+              <JellyRadio
+                items={STORY_STEPS.map(step => ({ value: step.id, label: step.number + '  ' + step.label }))}
+                value={activeStoryStep}
+                onChange={value => setActiveStoryStep(value as StoryStepId)}
+                chipColor="rgba(17, 31, 39, .92)"
+                activeColor="#9ED8C1"
+                textColor="#c1d6d1"
+                activeTextColor="#10261f"
+                size="md"
+                gap={9}
+                radius={999}
+                swell={0.08}
+                barge={4}
+                ariaLabel="Explore the DermaGuard workflow"
+              />
+              <div className="difference-detail" aria-live="polite">
+                <div className="difference-detail__meta">
+                  <span>{activeStoryDetails.number} / 03</span>
+                  <span>{activeStoryDetails.visualLabel}</span>
+                </div>
+                <h3>{activeStoryDetails.title}</h3>
+                <p>{activeStoryDetails.copy}</p>
+                <div className="difference-detail__terms">{activeStoryDetails.detail}</div>
+                <p className="difference-detail__callout">{activeStoryDetails.callout}</p>
+              </div>
+            </div>
+            <div className="difference-art" data-stage={activeStoryStep} aria-label={activeStoryDetails.visualLabel}>
+              <div className="difference-art__orbit difference-art__orbit--outer"><span /></div>
+              <div className="difference-art__orbit difference-art__orbit--middle"><span /></div>
+              <div className="difference-art__orbit difference-art__orbit--inner"><span /></div>
+              <div className="difference-art__core">
+                <strong>{activeStoryDetails.number}</strong>
+                <span>{activeStoryDetails.visualLabel}</span>
+              </div>
+              <div className="difference-art__axis difference-art__axis--top">INPUT</div>
+              <div className="difference-art__axis difference-art__axis--bottom">EVIDENCE → ACTION</div>
+            </div>
+          </div>
         </section>
 
         <section className="review-section" id="image-review" aria-labelledby="review-title">
           <div className="section-heading">
             <div>
-              <p className="eyebrow"><span /> START YOUR IMAGE REVIEW</p>
-              <h2 id="review-title">Upload your image.<br /><em>Review the evidence.</em></h2>
+              <p className="eyebrow"><span /> IMAGE REVIEW</p>
+              <h2 id="review-title">Start with<br /><em>the original image.</em></h2>
             </div>
             <p className="section-intro">
-              Upload a dermoscopic image to begin. Once the six-agent backend is connected, this workspace will display the class prediction, supporting evidence and triage decision.
+              Add a dermoscopic image to see it in the review workspace.
             </p>
           </div>
 
@@ -655,7 +440,7 @@ export default function HomePage() {
             <div className="review-workspace__top">
               <div className="workspace-title">
                 <span className="workspace-mark">DG</span>
-                <div><strong>Image workspace</strong><span>Prepare an image for review</span></div>
+                <div><strong>Image workspace</strong><span>Original capture</span></div>
               </div>
             </div>
 
@@ -687,14 +472,10 @@ export default function HomePage() {
                     style={{ objectFit: imageFit as 'contain' | 'cover' }}
                     onLoad={() => {
                       setImageStatus('done');
-                      setIsProcessing(false);
-                      setProcessingStage('');
                     }}
                     onError={() => {
                       setImageStatus('error');
-                      setIsProcessing(false);
-                      setProcessingStage('');
-                      setNotice('This image could not be previewed by your browser. Try a different supported image.');
+                      setNotice('This image could not be previewed. Choose another file.');
                     }}
                   />
                 </div>
@@ -721,134 +502,48 @@ export default function HomePage() {
             ) : null}
 
             <div className="composer-wrap">
-              <div className="upload-format-row">
-                <div>
-                  <span className="upload-format-row__label">IMAGE FILE TYPE</span>
-                  <p>Choose a photo from your device. We’ll show it here before anything else happens.</p>
-                </div>
-                <GlideSelect
-                  options={[
-                    { value: 'all', label: 'All supported', tag: '4 FORMATS' },
-                    { value: 'jpeg', label: 'JPEG / JPG', tag: '.JPG' },
-                    { value: 'png', label: 'PNG', tag: '.PNG' },
-                    { value: 'webp', label: 'WebP', tag: '.WEBP' },
-                    { value: 'avif', label: 'AVIF', tag: '.AVIF' }
-                  ]}
-                  value={imageFormat}
-                  onChange={value => setImageFormat(value as ImageFormat)}
-                  size="md"
-                  radius={11}
-                  menuWidth={190}
-                  accentColor="#39c9df"
-                  surfaceColor="#071d31"
-                  highlightColor="#07527d"
-                  textColor="#e1f4ff"
-                  ariaLabel="Filter image file type"
-                />
-                <button type="button" className="choose-image-button" onClick={openImagePicker}>
-                  Choose image <span aria-hidden="true">↗</span>
+              <div className="upload-surface">
+                <button type="button" className="upload-plus" onClick={openImagePicker} aria-label="Add a dermoscopic image">
+                  <span aria-hidden="true">+</span>
                 </button>
-              </div>
-              <PromptBar
-                placeholder="Add a note or attach your dermoscopic image..."
-                sources={[{
-                  key: 'image',
-                  name: 'Image from device',
-                  description: 'Choose a dermoscopic image',
-                  attach: true
-                }]}
-                commands={[]}
-                models={[]}
-                efforts={[]}
-                width={760}
-                background="rgba(5, 25, 42, 0.96)"
-                color="#e1f4ff"
-                menuBackground="#071d31"
-                sparkColor="#39c9df"
-                sparkBoost={1.05}
-                radius={19}
-                onAttach={attachImage}
-                directAttachOnPlus
-                onSend={handlePromptSend}
-              />
-              <input
-                ref={fileInputRef}
-                className="visually-hidden-file-input"
-                type="file"
-                accept={IMAGE_FORMAT_ACCEPT[imageFormat]}
-                onChange={handleImageChange}
-                tabIndex={-1}
-                aria-hidden="true"
-                aria-label="Choose a dermoscopic image"
-              />
-              <div className="composer-meta">
-                <span>JPEG · PNG · WEBP · AVIF · UP TO 25 MB</span>
-                <span>Your image stays on this device for now. Nothing is sent to a server.</span>
-              </div>
-              <div className="local-file-state local-file-state--visible">
-                <CallChip
-                  icon="file"
-                  name="IMAGE"
-                  argument={
-                    imageStatus === 'running'
-                      ? 'preparing local preview'
-                      : imageStatus === 'done'
-                        ? 'preview ready'
-                        : imageStatus === 'error'
-                          ? 'check file and try again'
-                          : 'waiting for image'
-                  }
-                  status={imageStatus}
-                  size={37}
-                  radius={10}
-                  color="#e1f4ff"
-                  surfaceColor="rgba(7, 38, 59, 0.92)"
-                  progressColor="#39c9df"
-                  doneColor="#39c9df"
-                  errorColor="#78ccf5"
-                  showTimer={imageStatus === 'running'}
-                  onRetry={() => { void attachImage(); }}
-                />
-              </div>
-            </div>
-
-            <div className="context-fields">
-              <div className="context-fields__heading">
-                <div className="context-fields__title">
-                  <span className="micro-label">A LITTLE CONTEXT</span>
-                  <p>Tell us a little about the spot.</p>
+                <div className="upload-surface__copy">
+                  <strong>{selectedFile ? 'Choose a different image' : 'Add a dermoscopic image'}</strong>
+                  <span>JPEG · PNG · WebP · AVIF</span>
                 </div>
-                <span>Everything here is optional.</span>
+                <span className="upload-surface__limit">MAX 25 MB</span>
               </div>
-              <div className="context-fields__grid">
-                <label>
-                  <span>Age</span>
-                  <input type="number" min="0" max="120" inputMode="numeric" placeholder="e.g. 35" value={contextAge} onChange={event => setContextAge(event.target.value)} />
-                </label>
-                <label>
-                  <span>Gender</span>
-                  <select value={contextGender} onChange={event => setContextGender(event.target.value)}>
-                    <option value="">Not provided</option>
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                    <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
-                </label>
-                <label className="context-fields__location">
-                  <span>Where is the spot?</span>
-                  <input type="text" maxLength={100} placeholder="e.g. upper back" value={contextLocation} onChange={event => setContextLocation(event.target.value)} />
-                </label>
-              </div>
+              <input ref={fileInputRef} className="visually-hidden-file-input" type="file" accept={IMAGE_ACCEPT}
+                onChange={handleImageChange} tabIndex={-1} aria-hidden="true" aria-label="Choose a dermoscopic image" />
+              {selectedFile && (imageStatus === 'done' || imageStatus === 'error') ? (
+                <div className="local-file-state local-file-state--visible">
+                  <CallChip
+                    icon="file"
+                    name="IMAGE"
+                    argument={imageStatus === 'error' ? 'preview unavailable' : 'preview ready'}
+                    status={imageStatus}
+                    size={37}
+                    radius={10}
+                    color="#d8eee7"
+                    surfaceColor="rgba(13, 31, 34, 0.9)"
+                    progressColor="#70D6B9"
+                    doneColor="#70D6B9"
+                    errorColor="#E59B84"
+                    onRetry={() => { void openImagePicker(); }}
+                  />
+                </div>
+              ) : null}
+              {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
             </div>
 
+            {(qualityResult || diagnosisResult) ? (
             <div className="result-preview">
               <div className="result-preview__heading">
                 <span className="micro-label">SCREENING RESULT</span>
-                <span>{qualityResult || diagnosisResult ? 'MODEL OUTPUT RECEIVED' : 'WAITING FOR REAL MODEL OUTPUT'}</span>
+                <span>DERMAGUARD</span>
               </div>
 
               <div className="result-preview__flip-grid">
+                {qualityResult ? (
                 <FlipCard
                   className="review-flip review-flip--quality"
                   width={390}
@@ -867,7 +562,6 @@ export default function HomePage() {
                         {qualityResult ? qualityResult.clarityScore.toFixed(1) + '%' : '—'}
                       </strong>
                       <span className="review-flip__title">Image clarity</span>
-                      <p>{qualityResult ? 'Quality assessment received.' : 'The clarity score appears when the Image Quality Agent responds.'}</p>
                       <small>FLIP TO SEE THE FINDINGS <span aria-hidden="true">↗</span></small>
                     </div>
                   }
@@ -880,14 +574,16 @@ export default function HomePage() {
                           {qualityResult.reasons.map((reason, index) => <li key={index}>{reason}</li>)}
                         </ul>
                       ) : (
-                        <p>Focus, lighting, glare and obstruction findings will appear here after the real quality check.</p>
+                        <p>No quality notes were returned.</p>
                       )}
                       {qualityResult?.retakeGuidance ? <p className="review-flip__guidance">{qualityResult.retakeGuidance}</p> : null}
                       <small>IMAGE QUALITY SCORE · 0–100</small>
                     </div>
                   }
                 />
+                ) : null}
 
+                {diagnosisResult ? (
                 <FlipCard
                   className="review-flip review-flip--diagnosis"
                   width={390}
@@ -938,19 +634,38 @@ export default function HomePage() {
                     </div>
                   }
                 />
+                ) : null}
               </div>
 
+              {diagnosisResult ? (
               <div className="result-preview__decision">
                 <div>
                   <span className="review-flip__eyebrow">DECISION LAYER</span>
                   <strong>{diagnosisResult?.decision?.replace('_', '-') ?? '—'}</strong>
                 </div>
-                <p>Class scores and calibrated confidence are separate outputs. A model score is not a confirmed diagnosis.</p>
+                <p>The class prediction and next-step decision are separate outputs.</p>
               </div>
-              <p>All three percentage outputs are populated only from the actual Image Quality and Diagnosis Agent responses. No sample scores are shown.</p>
+              ) : null}
+              <div className="result-feedback">
+                <span>WAS THIS REVIEW CLEAR?</span>
+                <PeekRating
+                  value={experienceRating}
+                  onChange={setExperienceRating}
+                  shape="star"
+                  size={19}
+                  count={5}
+                  activeColor="#9ED8C1"
+                  idleColor="#49635c"
+                  tipColor="#15332b"
+                  tipTextColor="#effaf4"
+                  labels={['Not clear', 'Somewhat', 'Clear', 'Very clear', 'Excellent']}
+                  ariaLabel="Rate the clarity of this review"
+                />
+              </div>
             </div>
+            ) : null}
 
-            {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
+            
             <div className="review-footnote">
               <span className="footnote-star" aria-hidden="true">✳</span>
               <span>For research and educational use. This experience is not a medical diagnosis or a substitute for professional care.</span>
@@ -960,123 +675,14 @@ export default function HomePage() {
 
 
 
-        <section className="agent-system" id="agent-system" aria-labelledby="agent-system-title">
-          <div className="agent-system__heading">
-            <div>
-              <p className="eyebrow"><span /> THE METHOD · SIX SPECIALIST ROLES</p>
-              <h2 id="agent-system-title">Six specialised roles.<br /><em>One traceable outcome.</em></h2>
-            </div>
-            <p>Agents contribute distinct evidence. The coordinator does not simply repeat six independent labels — it checks how their outputs agree, conflict and affect the final action.</p>
-          </div>
-
-          <div className="agent-system__explorer">
-            <div className="agent-system__selector">
-              <span className="method-label">SELECT AN AGENT</span>
-              <JellyRadio
-                items={AGENTS.map(agent => ({ value: agent.id, label: agent.code + ' ' + agent.short }))}
-                value={activeAgent}
-                onChange={value => setActiveAgent(value as AgentId)}
-                chipColor="rgba(9, 24, 52, .92)"
-                activeColor="#b7d0ff"
-                textColor="#bdcfee"
-                activeTextColor="#07152f"
-                size="sm"
-                gap={5}
-                radius={9}
-                swell={0.1}
-                barge={3}
-                ariaLabel="Choose one of the six DermaGuard agents"
-              />
-            </div>
-
-            <div className="agent-detail" aria-live="polite">
-              <div className="agent-detail__meta">
-                <span>{activeAgentDetails.code} / 06</span>
-                <span>ROLE & OUTPUTS</span>
-              </div>
-              <h3>{activeAgentDetails.name}</h3>
-              <p>{activeAgentDetails.description}</p>
-              <div className="agent-detail__outputs">
-                <span className="method-label">REQUIRED DEMONSTRABLE OUTPUT</span>
-                <ul>
-                  {activeAgentDetails.outputs.map(output => <li key={output}><code>{output}</code></li>)}
-                </ul>
-              </div>
-              <p className="agent-detail__guardrail">{activeAgentDetails.guardrail}</p>
-            </div>
-          </div>
-
-          <div className="trace-example">
-            <div className="trace-example__heading">
-              <div>
-                <p className="eyebrow"><span /> A SAMPLE DECISION PATH</p>
-                <h3>When evidence changes the decision.</h3>
-              </div>
-              <span className="trace-example__badge">ILLUSTRATIVE · NOT LIVE OUTPUT</span>
-            </div>
-            <div className="trace-table" role="table" aria-label="Illustrative six-agent decision trace">
-              <div className="trace-row trace-row--header" role="row">
-                <span role="columnheader">AGENT</span>
-                <span role="columnheader">OUTPUT</span>
-                <span role="columnheader">WHAT IT CONTRIBUTES</span>
-              </div>
-              <div className="trace-row" role="row">
-                <strong>A1 · Quality</strong><b className="trace-status trace-status--pass">PASS</b><span>Image is usable.</span>
-              </div>
-              <div className="trace-row" role="row">
-                <strong>A2 · Diagnosis</strong><b className="trace-status">NV · 0.73</b><span>Predicted class is melanocytic nevus.</span>
-              </div>
-              <div className="trace-row" role="row">
-                <strong>A3 + A4 · Evidence</strong><b className="trace-status trace-status--caution">SUSPICIOUS</b><span>Lesion and context evidence raise concern.</span>
-              </div>
-              <div className="trace-row" role="row">
-                <strong>A5 · Safety</strong><b className="trace-status trace-status--flag">SAFETY FLAG</b><span>Conflict detected; automatic triage is vetoed.</span>
-              </div>
-              <div className="trace-row trace-row--decision" role="row">
-                <strong>A6 · Coordinator</strong><b className="trace-status trace-status--refer">REFER</b><span>Final disposition with traceable rationale.</span>
-              </div>
-            </div>
-            <p className="trace-example__foot">The example demonstrates how a low-risk-looking class prediction can still lead to REFER when other agents identify concern.</p>
-          </div>
-        </section>
-
-        <section className="triage-policy" aria-labelledby="triage-policy-title">
-          <div className="triage-policy__heading">
-            <p className="eyebrow"><span /> DOCUMENTED DECISION POLICY</p>
-            <h2 id="triage-policy-title">Every image leaves with<br /><em>two outputs.</em></h2>
-            <p>One predicted lesion class. One triage action. The action is determined from the combined agent evidence, not the diagnosis label alone.</p>
-          </div>
-          <div className="triage-policy__rules">
-            <article className="triage-rule triage-rule--reimage">
-              <span className="triage-rule__number">01</span>
-              <h3>RE-IMAGE</h3>
-              <p>Use when focus, illumination, glare, obstruction or other quality checks make the capture unreliable. Request a new image.</p>
-            </article>
-            <article className="triage-rule triage-rule--refer">
-              <span className="triage-rule__number">02</span>
-              <h3>REFER</h3>
-              <p>Use when suspicion, uncertainty, disagreement or a Safety Agent veto makes automatic disposition unsafe.</p>
-            </article>
-            <article className="triage-rule triage-rule--auto">
-              <span className="triage-rule__number">03</span>
-              <h3>AUTO-TRIAGE</h3>
-              <p>Use only when image quality and evidence are sufficiently reliable, the agent outputs are consistent, and no safety veto is raised.</p>
-            </article>
-          </div>
-          <p className="triage-policy__note">A2 must still return a seven-class prediction for every image, including RE-IMAGE and REFER cases. These are prototype decision rules, not clinically validated thresholds.</p>
-        </section>
-
-
-
         <footer className="site-footer">
           <span className="footer-brand">DermaGuard<span>®</span></span>
-          <span>Research-led image review. Designed around clarity.</span>
+          <span>Quality first. Evidence before action.</span>
         </footer>
 
 
       </div>
       {isProcessing ? <ProcessingScreen stage={processingStage} /> : null}
-      {workspaceVisible ? <LunaAssistant /> : null}
     </main>
   );
 }
