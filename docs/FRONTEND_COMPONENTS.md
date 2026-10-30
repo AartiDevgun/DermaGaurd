@@ -46,3 +46,12 @@ The user decides the exact component placements. Do not substitute or introduce 
 - A DermaGuard Vercel project has not yet been created.
 - Repository currently contains project documentation and README, not a deployable Next.js application.
 - Create the Next.js app scaffold and integrate the first approved component before creating/linking the Vercel Git project, to avoid an initial deployment that cannot build.
+
+
+## GlideSelect source received (user, 2026-10-30)
+- `GlideSelect.tsx`: received as user attachment (React Bits TypeScript + CSS variant).
+- `GlideSelect.css`: received in chat.
+- Source component API includes options/value/defaultValue/onChange, placeholder, tags, accent/surface/highlight/text colours, sizes, menu placement/alignment, animation durations, disabled and accessibility label.
+- Runtime dependencies: `@hugeicons/react` and `@hugeicons/core-free-icons`.
+- Its implementation is an accessible animated combobox/listbox for selecting among predefined options. It does not itself open the operating-system file picker or upload a file. The actual image selection must use an HTML file input; GlideSelect can be used for an adjacent choice only if the product flow needs one. Do not claim GlideSelect itself handles file upload.
+- Source has been received; integration is deferred until the app scaffold and user-authorised placements are ready.
