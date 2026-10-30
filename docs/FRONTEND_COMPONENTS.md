@@ -23,7 +23,7 @@ The user decides the exact component placements. Do not substitute or introduce 
 | GlideSelect | Adjacent predefined selection control; not the file picker itself | TSX and CSS received |
 | JellyRadio | Placement undecided by user | TSX and CSS received |
 | LatticeLoader | Image Quality Agent processing state | TSX and CSS received |
-| PeekRating | Optional post-result UX feedback | TSX and CSS received |
+| PeekRating | Optional post-result UX feedback | TSX and CSS received |\n| PromptBar | Main image composer / attachment entry | TSX and CSS added |
 | LightTunnel | Quality analysis background; falling shards hidden while active | TSX and CSS received |
 | RefineFrame | Excluded by user | Not included |
 
@@ -135,3 +135,21 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Deployment state reported by Vercel: READY.
 - Production deployment is not SSO/password/IP protected; previews remain SSO protected.
 - The deployed page is an informational shell. It is not the live screening workflow and must not display simulated classifications.
+
+
+## PromptBar source received and added (2026-10-30)
+- User supplied PromptBar.tsx and PromptBar.css.
+- Added the React Bits TSX + CSS source under `src/components/react-bits/`.
+- The source menu is configured for image attachment only; unrelated default sources, models, commands and effort controls are disabled.
+- The parent opens a real image picker and displays a local image preview. It does not pretend to upload or analyze before the screening API is connected.
+- Prompt note is retained in the UI; selected image files remain in this browser-only stage.
+
+## Homepage design correction (2026-10-30)
+- Removed the previous brochure-style landing content and removed the phrase “DERMOSCOPIC IMAGE SCREENING/RESEARCH PROJECT”.
+- Homepage opens with the generated DG monogram rendered through ElectricLogo, centered during the intro, then transitions to a compact lockup in the top-right corner.
+- The monogram is isolated as an SVG outline source at `public/brand/dg-mark.svg` for the electric effect, derived from the approved generated DG logo artwork.
+- Background remains predominantly black, with deep blue and purple radial hues and 84 falling crystalline shards. Shards and ambient glows are hidden while LightTunnel is active.
+- The workspace is focused on image input and PromptBar; no marketing sections or research-project headline remain.
+- GlideSelect is used as the image preview fit control. JellyRadio remains unplaced until the user selects a purpose.
+- CallChip reflects the local image-ready state. LightTunnel and LatticeLoader are structured for the real quality-agent processing state; FlipCard and PeekRating are only shown when actual quality-agent results exist.
+- BranchedMenu and RefineFrame remain excluded.
