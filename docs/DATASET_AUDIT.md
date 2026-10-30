@@ -59,3 +59,10 @@
 - Result: image-to-metadata ID verification passed.
 - Limitation: only a random sample of 50 images has been decoded. A complete decode audit remains outstanding.
 - Next: create a stratified, lesion-grouped internal model-development validation split; never split images from the same lesion across train and internal validation. Keep this internal split distinct from the organizer evaluation partition.
+
+
+## Separate evaluation dataset confirmation (user, 2026-10-30)
+- User confirmed that a separate evaluation dataset is available outside the inspected training ZIP.
+- The inspected ZIP remains the 7,762-image training partition.
+- Evaluation dataset has not yet been inspected in Colab; exact image count, paths, metadata/labels and archive structure remain to be verified.
+- Protocol: keep this separate evaluation dataset untouched during architecture selection, hyperparameter tuning, threshold selection and calibration. Use a lesion-grouped internal validation split from the training partition for model development. Run final evaluation on the separate evaluation dataset only after the model and decision rules are frozen, if ground-truth labels are supplied and the organiser's rules permit this.
