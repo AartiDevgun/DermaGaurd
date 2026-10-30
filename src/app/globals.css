@@ -3066,3 +3066,177 @@ html, body {
   .composer-wrap .prompt-bar__input { font-size: 16px; }
   .composer-meta { font-size: 11px; }
 }
+
+
+/* GLOBAL READABILITY OVERRIDE — no tiny, low-contrast supporting copy. */
+.dermaguard-app {
+  font-size: 16px;
+}
+.dermaguard-app p,
+.dermaguard-app li,
+.dermaguard-app label,
+.dermaguard-app input,
+.dermaguard-app select,
+.dermaguard-app textarea,
+.dermaguard-app button {
+  font-size: 16px !important;
+}
+.dermaguard-app small,
+.dermaguard-app figcaption,
+.dermaguard-app .header-context,
+.dermaguard-app .header-muted,
+.dermaguard-app .header-link,
+.dermaguard-app .hero-note,
+.dermaguard-app .local-badge,
+.dermaguard-app .composer-meta,
+.dermaguard-app .micro-label,
+.dermaguard-app .eyebrow,
+.dermaguard-app .quote-overline,
+.dermaguard-app .method-label,
+.dermaguard-app .selected-image__name,
+.dermaguard-app .clear-image,
+.dermaguard-app .selected-image__bottom,
+.dermaguard-app .workflow-notice,
+.dermaguard-app .review-footnote,
+.dermaguard-app .approach-number,
+.dermaguard-app .approach-tag,
+.dermaguard-app .approach-note,
+.dermaguard-app .footer-disclaimer,
+.dermaguard-app .moon-launcher__label,
+.dermaguard-app .moon-panel__identity small,
+.dermaguard-app .moon-message,
+.dermaguard-app .moon-compose input,
+.dermaguard-app .moon-disclaimer,
+.dermaguard-app .processing-caption,
+.dermaguard-app .method-note,
+.dermaguard-app .method-tag,
+.dermaguard-app .method-visual__eyebrow,
+.dermaguard-app .method-visual__foot,
+.dermaguard-app .class-flip-front small,
+.dermaguard-app .class-flip-back p,
+.dermaguard-app .method-feedback__caption,
+.dermaguard-app .hero-visual__caption,
+.dermaguard-app .agent-detail__meta,
+.dermaguard-app .agent-detail__outputs li code,
+.dermaguard-app .agent-detail__guardrail,
+.dermaguard-app .trace-example__badge,
+.dermaguard-app .trace-row--header,
+.dermaguard-app .trace-row strong,
+.dermaguard-app .trace-row > span,
+.dermaguard-app .trace-status,
+.dermaguard-app .trace-example__foot,
+.dermaguard-app .triage-rule__number,
+.dermaguard-app .triage-policy__note,
+.dermaguard-app .submission-time,
+.dermaguard-app .csv-download,
+.dermaguard-app .csv-columns code,
+.dermaguard-app .csv-columns span,
+.dermaguard-app .csv-schema__note,
+.dermaguard-app .evaluation-report__pending,
+.dermaguard-app .evaluation-metrics span,
+.dermaguard-app .submission-section__foot,
+.dermaguard-app .upload-card__formats,
+.dermaguard-app .upload-card__privacy,
+.dermaguard-app .upload-format-row__label,
+.dermaguard-app .review-flip__eyebrow,
+.dermaguard-app .review-flip__content > small,
+.dermaguard-app .review-flip__class-row > span,
+.dermaguard-app .review-flip__class-row > strong,
+.dermaguard-app .context-fields__heading > span:last-child,
+.dermaguard-app .result-preview__heading > span:last-child,
+.dermaguard-app .result-preview__columns span,
+.dermaguard-app .result-preview__columns small {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #c6dff0 !important;
+}
+
+/* Main reading copy gets the full 16px size and brighter ice-blue contrast. */
+.dermaguard-app p,
+.dermaguard-app .hero-description,
+.dermaguard-app .section-intro,
+.dermaguard-app .approach-card p,
+.dermaguard-app .agent-system__heading > p,
+.dermaguard-app .agent-detail > p,
+.dermaguard-app .method-heading > p,
+.dermaguard-app .method-copy > p,
+.dermaguard-app .triage-rule p,
+.dermaguard-app .submission-section__intro > p:last-child,
+.dermaguard-app .review-footnote,
+.dermaguard-app .upload-card__copy p,
+.dermaguard-app .upload-card__privacy,
+.dermaguard-app .context-fields__heading > span:last-child,
+.dermaguard-app .result-preview > p,
+.dermaguard-app .result-preview__decision > p,
+.dermaguard-app .workflow-notice {
+  color: #d2e8f6 !important;
+  font-size: 16px !important;
+  line-height: 1.75 !important;
+}
+
+/* Small headings stay distinct, but are large enough to read. */
+.dermaguard-app .micro-label,
+.dermaguard-app .eyebrow,
+.dermaguard-app .quote-overline,
+.dermaguard-app .method-label,
+.dermaguard-app .upload-card__eyebrow,
+.dermaguard-app .upload-format-row__label,
+.dermaguard-app .review-flip__eyebrow {
+  color: #70d9e8 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  letter-spacing: .09em;
+}
+
+/* Secondary text and input hints are not allowed to fade into the background. */
+.dermaguard-app input::placeholder,
+.dermaguard-app textarea::placeholder {
+  color: #a9c9df !important;
+  opacity: 1 !important;
+  font-size: 15px !important;
+}
+.dermaguard-app .result-preview__columns span,
+.dermaguard-app .result-preview__heading > span:last-child,
+.dermaguard-app .trace-row--header,
+.dermaguard-app .evaluation-metrics span {
+  color: #b8d8ed !important;
+}
+.dermaguard-app .trace-row strong,
+.dermaguard-app .trace-row > span,
+.dermaguard-app .agent-detail__meta,
+.dermaguard-app .agent-detail__guardrail,
+.dermaguard-app .triage-policy__note,
+.dermaguard-app .submission-section__foot,
+.dermaguard-app .footer-disclaimer {
+  color: #c5deef !important;
+}
+
+/* Keep the new seven-class FlipCard back comfortably readable. */
+.dermaguard-app .review-flip__class-row > span,
+.dermaguard-app .review-flip__reasons li,
+.dermaguard-app .review-flip__content--back > p {
+  color: #d2e8f6 !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+@media (max-width: 680px) {
+  .dermaguard-app p,
+  .dermaguard-app li,
+  .dermaguard-app label,
+  .dermaguard-app input,
+  .dermaguard-app select,
+  .dermaguard-app textarea,
+  .dermaguard-app button,
+  .dermaguard-app .result-preview > p {
+    font-size: 15px !important;
+  }
+  .dermaguard-app small,
+  .dermaguard-app .micro-label,
+  .dermaguard-app .method-label,
+  .dermaguard-app .trace-row--header,
+  .dermaguard-app .trace-status,
+  .dermaguard-app .agent-detail__meta {
+    font-size: 14px !important;
+  }
+}
