@@ -1,17 +1,17 @@
 :root {
   color-scheme: dark;
-  --ink: #f2f7ff;
-  --blue-ice: #d8eaff;
-  --blue-pale: #a9ccff;
-  --blue-mid: #78aaff;
-  --blue-bright: #6598f0;
-  --blue-deep: #244b83;
-  --muted: #8da5c7;
-  --line: rgba(145, 184, 235, .17);
+  --ink: #f3f5ef;
+  --blue-ice: #d9f4e9;
+  --blue-pale: #a9dfc9;
+  --blue-mid: #70d6b9;
+  --blue-bright: #d7ad67;
+  --blue-deep: #315e4e;
+  --muted: #9ba99f;
+  --line: rgba(112, 214, 185, .18);
   --ease: cubic-bezier(.22, 1, .36, 1);
 }
 * { box-sizing: border-box; }
-html, body { min-height: 100%; margin: 0; background: #030812; }
+html, body { min-height: 100%; margin: 0; background: #000000; }
 html { scroll-behavior: smooth; }
 body {
   min-width: 320px;
@@ -30,14 +30,14 @@ button, a { -webkit-tap-highlight-color: transparent; }
   isolation: isolate;
   min-height: 100svh;
   overflow: hidden;
-  background: #030812;
+  background: #000000;
 }
 .dermaguard-app--revealed {
   background:
-    radial-gradient(ellipse 58% 50% at 80% 13%, rgba(40, 92, 165, .2), transparent 72%),
-    radial-gradient(ellipse 50% 45% at 12% 69%, rgba(29, 84, 151, .16), transparent 72%),
-    radial-gradient(ellipse 42% 36% at 50% 100%, rgba(40, 82, 147, .13), transparent 78%),
-    #030812;
+    radial-gradient(ellipse 58% 50% at 80% 13%, rgba(39, 91, 72, .16), transparent 72%),
+    radial-gradient(ellipse 50% 45% at 12% 69%, rgba(112, 214, 185, .09), transparent 72%),
+    radial-gradient(ellipse 42% 36% at 50% 100%, rgba(215, 173, 103, .07), transparent 78%),
+    #000000;
 }
 .petal-field, .crystal-field, .ambient-glow {
   opacity: 0;
@@ -52,9 +52,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   inset: -18%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 19% 31%, rgba(51, 126, 222, .13), transparent 25%),
-    radial-gradient(circle at 78% 38%, rgba(75, 127, 214, .13), transparent 27%),
-    radial-gradient(circle at 48% 84%, rgba(51, 91, 169, .1), transparent 24%);
+    radial-gradient(circle at 19% 31%, rgba(112, 214, 185, .12), transparent 25%),
+    radial-gradient(circle at 78% 38%, rgba(215, 173, 103, .10), transparent 27%),
+    radial-gradient(circle at 48% 84%, rgba(112, 214, 185, .08), transparent 24%);
   filter: blur(48px);
   animation: ambient-breathe 15s ease-in-out infinite alternate;
 }
@@ -79,8 +79,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   height: calc(var(--petal-size) * 1.42);
   opacity: var(--petal-alpha);
   border-radius: 88% 0 88% 0;
-  background: linear-gradient(148deg, hsl(var(--petal-hue) 100% 97%) 0%, hsl(calc(var(--petal-hue) + 7) 91% 79%) 34%, hsl(calc(var(--petal-hue) + 15) 77% 59%) 71%, rgba(44, 83, 151, .08) 100%);
-  box-shadow: 0 0 7px rgba(106, 170, 255, .2), inset 1px 1px 3px rgba(255,255,255,.24);
+  background: linear-gradient(148deg, hsl(var(--petal-hue) 72% 97%) 0%, hsl(calc(var(--petal-hue) + 7) 62% 79%) 34%, hsl(calc(var(--petal-hue) + 15) 58% 59%) 71%, rgba(44, 83, 151, .08) 100%);
+  box-shadow: 0 0 7px rgba(112, 214, 185, .22), inset 1px 1px 3px rgba(255,255,255,.24);
   transform: rotate(45deg);
   animation: petal-drift var(--petal-duration) linear var(--petal-delay) infinite;
   will-change: transform;
@@ -868,7 +868,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   overflow: hidden;
   border: 1px solid rgba(137, 180, 236, .2);
   border-radius: 22px;
-  background: #030812;
+  background: #000000;
 }
 .quality-processing__tunnel { position: absolute; inset: 0; }
 .quality-processing__status {
