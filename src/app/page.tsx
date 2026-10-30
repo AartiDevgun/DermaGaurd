@@ -13,6 +13,35 @@ import ProcessingScreen from '@/components/ProcessingScreen';
 type ChatMessage = { role: 'user' | 'assistant'; text: string };
 type AgentId = 'quality' | 'diagnosis' | 'lesion' | 'context' | 'safety' | 'coordinator';
 
+type LesionCode = 'NV' | 'MEL' | 'BKL' | 'BCC' | 'AKIEC' | 'VASC' | 'DF';
+type QualityResult = {
+  clarityScore: number;
+  reasons: string[];
+  retakeGuidance?: string;
+};
+type DiagnosisResult = {
+  predictedClass: LesionCode;
+  calibratedConfidence: number;
+  classProbabilities: { code: LesionCode; probability: number }[];
+  decision?: 'AUTO_TRIAGE' | 'REFER' | 'RE_IMAGE';
+};
+
+const LESION_CLASSES: { code: LesionCode; name: string }[] = [
+  { code: 'NV', name: 'Melanocytic nevi' },
+  { code: 'MEL', name: 'Melanoma' },
+  { code: 'BKL', name: 'Benign keratosis-like lesions' },
+  { code: 'BCC', name: 'Basal cell carcinoma' },
+  { code: 'AKIEC', name: 'Actinic keratoses / intraepithelial carcinoma' },
+  { code: 'VASC', name: 'Vascular lesions' },
+  { code: 'DF', name: 'Dermatofibroma' }
+];
+
+const asUnitPercentage = (value: number) => Math.max(0, Math.min(100, value * 100));
+const validUnitScore = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
+const validClarityScore = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
+
 type AgentSpec = {
   id: AgentId;
   code: string;
@@ -334,6 +363,8 @@ export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageFormat, setImageFormat] = useState<ImageFormat>('all');
   const [imageStatus, setImageStatus] = useState<CallChipStatus>('idle');
+  const [qualityResult, setQualityResult] = useState<QualityResult | null>(null);
+  const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
@@ -408,6 +439,60 @@ export default function HomePage() {
     return () => input.removeEventListener('cancel', handleNativeCancel);
   }, [selectedFile]);
 
+  useEffect(() => {
+    // The inference client will dispatch these only after receiving real API responses.
+    const handleQualityResult = (event: Event) => {
+      const detail = (event as CustomEvent<unknown>).detail;
+      if (!detail || typeof detail !== 'object') return;
+      const data = detail as Record<string, unknown>;
+      if (!validClarityScore(data.clarityScore)) return;
+      const reasons = Array.isArray(data.reasons)
+        ? data.reasons.filter((item): item is string => typeof item === 'string').slice(0, 8)
+        : [];
+      setQualityResult({
+        clarityScore: data.clarityScore,
+        reasons,
+        retakeGuidance: typeof data.retakeGuidance === 'string' ? data.retakeGuidance : undefined
+      });
+    };
+
+    const handleDiagnosisResult = (event: Event) => {
+      const detail = (event as CustomEvent<unknown>).detail;
+      if (!detail || typeof detail !== 'object') return;
+      const data = detail as Record<string, unknown>;
+      const validCodes = new Set(LESION_CLASSES.map(item => item.code));
+      if (typeof data.predictedClass !== 'string' || !validCodes.has(data.predictedClass as LesionCode)) return;
+      if (!validUnitScore(data.calibratedConfidence) || !Array.isArray(data.classProbabilities)) return;
+      const classProbabilities = data.classProbabilities
+        .filter((item): item is { code: LesionCode; probability: number } => {
+          if (!item || typeof item !== 'object') return false;
+          const entry = item as Record<string, unknown>;
+          return typeof entry.code === 'string'
+            && validCodes.has(entry.code as LesionCode)
+            && validUnitScore(entry.probability);
+        })
+        .map(item => ({ code: item.code, probability: item.probability }))
+        .sort((a, b) => b.probability - a.probability);
+      if (classProbabilities.length !== 7) return;
+      const decision = data.decision === 'AUTO_TRIAGE' || data.decision === 'REFER' || data.decision === 'RE_IMAGE'
+        ? data.decision
+        : undefined;
+      setDiagnosisResult({
+        predictedClass: data.predictedClass as LesionCode,
+        calibratedConfidence: data.calibratedConfidence,
+        classProbabilities,
+        decision
+      });
+    };
+
+    window.addEventListener('dermaguard:quality-result', handleQualityResult);
+    window.addEventListener('dermaguard:diagnosis-result', handleDiagnosisResult);
+    return () => {
+      window.removeEventListener('dermaguard:quality-result', handleQualityResult);
+      window.removeEventListener('dermaguard:diagnosis-result', handleDiagnosisResult);
+    };
+  }, []);
+
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
@@ -430,6 +515,8 @@ export default function HomePage() {
       input.value = '';
       return;
     }
+    setQualityResult(null);
+    setDiagnosisResult(null);
     setSelectedFile(file);
     setImageStatus('running');
     setNotice('');
@@ -586,11 +673,26 @@ export default function HomePage() {
                   <button
                     type="button"
                     className="clear-image"
-                    onClick={() => { setSelectedFile(null); setImageStatus('idle'); setNotice(''); }}
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setQualityResult(null);
+                      setDiagnosisResult(null);
+                      setImageStatus('idle');
+                      setNotice('');
+                    }}
                   >Remove <span aria-hidden="true">×</span></button>
                 </div>
                 <div className="selected-image__preview">
-                  <img src={previewUrl} alt="Selected dermoscopic image preview" style={{ objectFit: imageFit as 'contain' | 'cover' }} />
+                  <img
+                    src={previewUrl}
+                    alt="Selected dermoscopic image preview"
+                    style={{ objectFit: imageFit as 'contain' | 'cover' }}
+                    onLoad={() => setImageStatus('done')}
+                    onError={() => {
+                      setImageStatus('error');
+                      setNotice('This image could not be previewed by your browser. Try a different supported image.');
+                    }}
+                  />
                 </div>
                 <div className="selected-image__bottom">
                   <span>{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</span>
@@ -734,14 +836,108 @@ export default function HomePage() {
 
             <div className="result-preview">
               <div className="result-preview__heading">
-                <span className="micro-label">EXPECTED REVIEW OUTPUT</span>
-                <span>AWAITING SIX-AGENT API</span>
+                <span className="micro-label">SCREENING RESULT</span>
+                <span>{qualityResult || diagnosisResult ? 'MODEL OUTPUT RECEIVED' : 'WAITING FOR REAL MODEL OUTPUT'}</span>
               </div>
-              <div className="result-preview__columns">
-                <div><span>PREDICTED CLASS</span><strong>—</strong><small>Seven-class distribution</small></div>
-                <div><span>TRIAGE DECISION</span><strong>—</strong><small>AUTO-TRIAGE · REFER · RE-IMAGE</small></div>
+
+              <div className="result-preview__flip-grid">
+                <FlipCard
+                  className="review-flip review-flip--quality"
+                  width={390}
+                  height={292}
+                  radius={18}
+                  background="linear-gradient(145deg, #08243a, #061522)"
+                  color="#e1f4ff"
+                  glare={false}
+                  tilt={false}
+                  draggable={false}
+                  ariaLabel="Flip to view image clarity score and quality findings"
+                  front={
+                    <div className="review-flip__content">
+                      <span className="review-flip__eyebrow">01 · IMAGE QUALITY</span>
+                      <strong className="review-flip__percentage">
+                        {qualityResult ? Math.round(qualityResult.clarityScore) + '%' : '—'}
+                      </strong>
+                      <span className="review-flip__title">Image clarity</span>
+                      <p>{qualityResult ? 'Quality assessment received.' : 'The clarity score appears when the Image Quality Agent responds.'}</p>
+                      <small>FLIP TO SEE THE FINDINGS <span aria-hidden="true">↗</span></small>
+                    </div>
+                  }
+                  back={
+                    <div className="review-flip__content review-flip__content--back">
+                      <span className="review-flip__eyebrow">IMAGE QUALITY · DETAILS</span>
+                      <h3>What affected clarity?</h3>
+                      {qualityResult?.reasons.length ? (
+                        <ul className="review-flip__reasons">
+                          {qualityResult.reasons.map((reason, index) => <li key={index}>{reason}</li>)}
+                        </ul>
+                      ) : (
+                        <p>Focus, lighting, glare and obstruction findings will appear here after the real quality check.</p>
+                      )}
+                      {qualityResult?.retakeGuidance ? <p className="review-flip__guidance">{qualityResult.retakeGuidance}</p> : null}
+                      <small>IMAGE QUALITY SCORE · 0–100</small>
+                    </div>
+                  }
+                />
+
+                <FlipCard
+                  className="review-flip review-flip--diagnosis"
+                  width={390}
+                  height={292}
+                  radius={18}
+                  background="linear-gradient(145deg, #07324a, #061522)"
+                  color="#e1f4ff"
+                  glare={false}
+                  tilt={false}
+                  draggable={false}
+                  ariaLabel="Flip to view the seven lesion class probabilities"
+                  front={
+                    <div className="review-flip__content">
+                      <span className="review-flip__eyebrow">02 · DIAGNOSIS MODEL</span>
+                      <strong className="review-flip__prediction">
+                        {diagnosisResult ? diagnosisResult.predictedClass : '—'}
+                      </strong>
+                      <span className="review-flip__title">
+                        {diagnosisResult
+                          ? LESION_CLASSES.find(item => item.code === diagnosisResult.predictedClass)?.name ?? 'Predicted class'
+                          : 'Predicted lesion class'}
+                      </span>
+                      <div className="review-flip__confidence">
+                        <span>CALIBRATED CONFIDENCE</span>
+                        <strong>{diagnosisResult ? Math.round(asUnitPercentage(diagnosisResult.calibratedConfidence)) + '%' : '—'}</strong>
+                      </div>
+                      <small>FLIP TO SEE ALL SEVEN CLASS SCORES <span aria-hidden="true">↗</span></small>
+                    </div>
+                  }
+                  back={
+                    <div className="review-flip__content review-flip__content--back">
+                      <span className="review-flip__eyebrow">DIAGNOSIS · CLASS DISTRIBUTION</span>
+                      <h3>Model class scores</h3>
+                      <div className="review-flip__class-list">
+                        {LESION_CLASSES.map(lesion => {
+                          const score = diagnosisResult?.classProbabilities.find(item => item.code === lesion.code)?.probability;
+                          return (
+                            <div className="review-flip__class-row" key={lesion.code}>
+                              <span><b>{lesion.code}</b> {lesion.name}</span>
+                              <strong>{score === undefined ? '—' : Math.round(asUnitPercentage(score)) + '%'}</strong>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <small>SOFTMAX OUTPUT · NOT A STANDALONE DIAGNOSIS</small>
+                    </div>
+                  }
+                />
               </div>
-              <p>Quality findings, lesion evidence, context flags, safety checks and coordinator rationale will appear here after integration.</p>
+
+              <div className="result-preview__decision">
+                <div>
+                  <span className="review-flip__eyebrow">DECISION LAYER</span>
+                  <strong>{diagnosisResult?.decision?.replace('_', '-') ?? '—'}</strong>
+                </div>
+                <p>Class scores and calibrated confidence are separate outputs. A model score is not a confirmed diagnosis.</p>
+              </div>
+              <p>All three percentage outputs are populated only from the actual Image Quality and Diagnosis Agent responses. No sample scores are shown.</p>
             </div>
 
             {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
