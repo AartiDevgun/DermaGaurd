@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
 import ElectricLogo from '@/components/react-bits/ElectricLogo';
+import PromptBar, { type PromptBarSendDetail } from '@/components/react-bits/PromptBar';
 import GlideSelect from '@/components/react-bits/GlideSelect';
-import CallChip from '@/components/react-bits/CallChip';
+import CallChip, { type CallChipStatus } from '@/components/react-bits/CallChip';
 import FlipCard from '@/components/react-bits/FlipCard';
 import PeekRating from '@/components/react-bits/PeekRating';
 import JellyRadio from '@/components/react-bits/JellyRadio';
@@ -78,6 +79,16 @@ const AGENTS: AgentSpec[] = [
     guardrail: 'The final response always contains both a class prediction and a triage decision.'
   }
 ];
+
+const IMAGE_FORMAT_ACCEPT = {
+  all: 'image/jpeg,image/png,image/webp,image/avif',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  avif: 'image/avif'
+} as const;
+
+type ImageFormat = keyof typeof IMAGE_FORMAT_ACCEPT;
 
 const logoSrc = '/brand/dermaguard-shield.webp';
 
@@ -321,6 +332,8 @@ export default function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageFormat, setImageFormat] = useState<ImageFormat>('all');
+  const [imageStatus, setImageStatus] = useState<CallChipStatus>('idle');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageFit, setImageFit] = useState('contain');
   const [notice, setNotice] = useState('');
@@ -328,6 +341,7 @@ export default function HomePage() {
   const [contextGender, setContextGender] = useState('');
   const [contextLocation, setContextLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachResolver = useRef<((value?: string) => void) | null>(null);
 
   useEffect(() => {
     const dockTimer = window.setTimeout(() => setLogoDocked(true), 1850);
@@ -355,26 +369,74 @@ export default function HomePage() {
     }
     const url = URL.createObjectURL(selectedFile);
     setPreviewUrl(url);
+    setImageStatus('done');
     return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
+
+  const finishAttachment = (value?: string) => {
+    attachResolver.current?.(value);
+    attachResolver.current = null;
+  };
+
+  const attachImage = () =>
+    new Promise<string | void>((resolve) => {
+      attachResolver.current = resolve;
+      if (!fileInputRef.current) {
+        finishAttachment();
+        return;
+      }
+      fileInputRef.current.value = '';
+      setImageStatus('running');
+      setNotice('Choose a supported image file to add it to the review.');
+      fileInputRef.current.click();
+    });
+
+  const handleImageCancel = () => {
+    setImageStatus(selectedFile ? 'done' : 'idle');
+    finishAttachment();
+  };
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setNotice('Please choose an image file.');
+    if (!file) {
+      handleImageCancel();
+      return;
+    }
+    const acceptedTypes = IMAGE_FORMAT_ACCEPT[imageFormat].split(',');
+    if (!acceptedTypes.includes(file.type)) {
+      setImageStatus('error');
+      setNotice('That file does not match the selected format. Change the format filter or choose another image.');
+      finishAttachment();
       input.value = '';
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
+      setImageStatus('error');
       setNotice('This image is larger than 25 MB. Choose a smaller image.');
+      finishAttachment();
       input.value = '';
       return;
     }
     setSelectedFile(file);
+    setImageStatus('running');
     setNotice('');
+    finishAttachment(file.name);
     input.value = '';
+  };
+
+  const handlePromptSend = (text: string, detail: PromptBarSendDetail) => {
+    if (!selectedFile) {
+      setNotice('Choose a dermoscopic image first. The prompt is ready, but there is no image selected.');
+      return;
+    }
+    const note = text.trim();
+    setNotice(
+      note
+        ? 'Your note is ready locally with the selected image. The live analysis API is not connected, so nothing has been uploaded or analysed.'
+        : 'Your image is selected and previewed locally. The live analysis API is not connected, so nothing has been uploaded or analysed.'
+    );
+    void detail;
   };
 
   const activeAgentDetails = AGENTS.find(agent => agent.id === activeAgent) ?? AGENTS[0];
@@ -512,7 +574,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     className="clear-image"
-                    onClick={() => { setSelectedFile(null); setNotice(''); }}
+                    onClick={() => { setSelectedFile(null); setImageStatus('idle'); setNotice(''); }}
                   >Remove <span aria-hidden="true">×</span></button>
                 </div>
                 <div className="selected-image__preview">
@@ -541,45 +603,92 @@ export default function HomePage() {
             ) : null}
 
             <div className="composer-wrap">
-              <div className="upload-card">
-                <div className="upload-card__visual" aria-hidden="true">
-                  <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
-                    <path d="M12 20.5a5.5 5.5 0 0 1 5.5-5.5h7l4-5h9l4 5h5A5.5 5.5 0 0 1 52 20.5v25a5.5 5.5 0 0 1-5.5 5.5h-29a5.5 5.5 0 0 1-5.5-5.5v-25Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-                    <circle cx="32" cy="32" r="10" stroke="currentColor" strokeWidth="1.8"/>
-                    <circle cx="32" cy="32" r="3.2" fill="currentColor" opacity=".72"/>
-                    <path d="m43 22 3.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                  </svg>
-                  <span className="upload-card__spark">✳</span>
+              <div className="upload-format-row">
+                <div>
+                  <span className="upload-format-row__label">IMAGE FILE TYPE</span>
+                  <p>Filter the file picker to match your original image.</p>
                 </div>
-                <div className="upload-card__copy">
-                  <span className="upload-card__eyebrow">START WITH A PHOTO</span>
-                  <h3>Choose a skin image</h3>
-                  <p>A sharp, evenly lit dermoscopic image works best. Keep the original image free of filters or edits.</p>
-                  <span className="upload-card__formats">PNG · JPG · WEBP · UP TO 25 MB</span>
-                </div>
-                <button
-                  type="button"
-                  className="upload-card__button"
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = '';
-                      fileInputRef.current.click();
-                    }
-                  }}
-                >
-                  <span aria-hidden="true">↑</span> Choose image
-                </button>
+                <GlideSelect
+                  options={[
+                    { value: 'all', label: 'All supported', tag: '4 FORMATS' },
+                    { value: 'jpeg', label: 'JPEG / JPG', tag: '.JPG' },
+                    { value: 'png', label: 'PNG', tag: '.PNG' },
+                    { value: 'webp', label: 'WebP', tag: '.WEBP' },
+                    { value: 'avif', label: 'AVIF', tag: '.AVIF' }
+                  ]}
+                  value={imageFormat}
+                  onChange={value => setImageFormat(value as ImageFormat)}
+                  size="md"
+                  radius={11}
+                  menuWidth={190}
+                  accentColor="#39c9df"
+                  surfaceColor="#071d31"
+                  highlightColor="#07527d"
+                  textColor="#e1f4ff"
+                  ariaLabel="Filter image file type"
+                />
               </div>
+              <PromptBar
+                placeholder="Add a note or attach your dermoscopic image..."
+                sources={[{
+                  key: 'image',
+                  name: 'Image from device',
+                  description: 'Choose a dermoscopic image',
+                  attach: true
+                }]}
+                commands={[]}
+                models={[]}
+                efforts={[]}
+                width={760}
+                background="rgba(5, 25, 42, 0.96)"
+                color="#e1f4ff"
+                menuBackground="#071d31"
+                sparkColor="#39c9df"
+                sparkBoost={1.05}
+                radius={19}
+                onAttach={attachImage}
+                onSend={handlePromptSend}
+              />
               <input
                 ref={fileInputRef}
                 className="visually-hidden-file-input"
                 type="file"
-                accept="image/png,image/jpeg,image/webp,image/avif"
+                accept={IMAGE_FORMAT_ACCEPT[imageFormat]}
                 onChange={handleImageChange}
+                onCancel={handleImageCancel}
                 tabIndex={-1}
                 aria-hidden="true"
+                aria-label="Choose a dermoscopic image"
               />
-              <p className="upload-card__privacy">Your image is only previewed in this browser right now. The analysis connection is not live yet.</p>
+              <div className="composer-meta">
+                <span>JPEG · PNG · WEBP · AVIF · UP TO 25 MB</span>
+                <span>Image preview stays in this browser until API integration.</span>
+              </div>
+              <div className="local-file-state local-file-state--visible">
+                <CallChip
+                  icon="file"
+                  name="IMAGE"
+                  argument={
+                    imageStatus === 'running'
+                      ? 'preparing local preview'
+                      : imageStatus === 'done'
+                        ? 'preview ready'
+                        : imageStatus === 'error'
+                          ? 'check file and try again'
+                          : 'waiting for image'
+                  }
+                  status={imageStatus}
+                  size={37}
+                  radius={10}
+                  color="#e1f4ff"
+                  surfaceColor="rgba(7, 38, 59, 0.92)"
+                  progressColor="#39c9df"
+                  doneColor="#39c9df"
+                  errorColor="#78ccf5"
+                  showTimer={imageStatus === 'running'}
+                  onRetry={() => { void attachImage(); }}
+                />
+              </div>
             </div>
 
             <div className="context-fields">
@@ -622,20 +731,6 @@ export default function HomePage() {
                 <div><span>TRIAGE DECISION</span><strong>—</strong><small>AUTO-TRIAGE · REFER · RE-IMAGE</small></div>
               </div>
               <p>Quality findings, lesion evidence, context flags, safety checks and coordinator rationale will appear here after integration.</p>
-            </div>
-
-            <div className="local-file-state">
-              <CallChip
-                name="IMAGE"
-                argument={selectedFile ? 'ready in browser' : 'awaiting image'}
-                status="idle"
-                size={31}
-                radius={9}
-                color="#dceaff"
-                surfaceColor="rgba(12, 27, 49, 0.9)"
-                showTimer={false}
-                progressColor="#83b5ff"
-              />
             </div>
 
             {notice ? <p className="workflow-notice" role="status">{notice}</p> : null}
