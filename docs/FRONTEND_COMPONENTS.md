@@ -63,3 +63,12 @@ The user decides the exact component placements. Do not substitute or introduce 
 - Dependencies: @hugeicons/react and @hugeicons/core-free-icons.
 - Drive status from the actual upload/request lifecycle. The elapsed timer measures real running time. expectedMs controls the visual fill transition estimate; it is not actual upload percentage. Do not fabricate upload progress.
 - Integration is deferred until the app scaffold is ready.
+
+
+## LatticeLoader source received (2026-10-30)
+- User supplied LatticeLoader.tsx and LatticeLoader.css.
+- Supports working/done/error statuses, 3×3 or 4×4 animated patterns, optional glow, elapsed timer and accessibility announcements.
+- No additional third-party runtime dependency is imported by this component.
+- Timing integration: set status from the actual Agent 1 request lifecycle. When `elapsed` is omitted, the component measures elapsed time from its own `performance.now()` clock while status is `working`; alternatively, pass elapsed seconds from the parent request clock. Stop the working state on the actual response/error, not an arbitrary timeout.
+- Intended role: visual processing indicator while the image-quality agent is genuinely running. Coordinate with LightTunnel so background shards are disabled during the tunnel state.
+- Integration is deferred until the app scaffold is ready.
