@@ -144,3 +144,13 @@
 - This runtime is suitable for initial pretrained CNN/vision-model experiments with careful batch sizing and mixed precision.
 - Do not assume every torchvision/timm wheel is compatible with this Colab image; verify imports and a real CUDA tensor operation before proceeding.
 - Next: GPU execution and package compatibility smoke test; then extract only the training archive into local Colab storage.
+
+
+## GPU and library smoke test passed (reported by user, 2026-10-30)
+- PyTorch: 2.11.0+cu130
+- Torchvision: 0.26.0+cu130
+- NumPy: 2.1.3
+- CUDA matrix multiplication on Tesla T4: passed
+- FP16 autocast matrix multiplication: passed
+- Result: GPU and mixed-precision execution confirmed; training has still not begun.
+- Next: extract only `Health/training/images/` and `Health/training/metadata.csv` from training ZIP into Colab local storage. Do not extract or inspect eval images for training.
